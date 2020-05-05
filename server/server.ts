@@ -13,19 +13,39 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     hello: (parent, args, context, info) => {
-      console.log(context.req.body)
+      // console.log(context.req.body)
       return 'Request completed and returned'
     }
   },
 };
 
+const bool = false;
 
 // Express & Apollo setup
 const app = express();
 const server = new ApolloServer({
   typeDefs,
-  resolvers, 
-});
+  resolvers,
+  context: ({req, res}) => ({req, res}),
+  plugins: [
+    {
+      // serverWillStart() {console.log('server started')},
+      requestDidStart(requestContext) {
+        console.log('req started')
+        return {
+          parsingDidStart(requestContext) {
+            console.log(requestContext.context.req.ip)
+            if (bool) {
+              console.log('parsin')
+            } else {
+              throw new Error('Too many connects')
+            }
+          },
+        }
+      },      
+    }
+  ]
+})
 
 server.applyMiddleware({
   app,

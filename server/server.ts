@@ -12,17 +12,19 @@ const typeDefs = gql`
 // Resolvers
 const resolvers = {
   Query: {
-    hello: async () => {
-      return 'hello'
+    hello: (parent, args, context, info) => {
+      console.log(context.req.body)
+      return 'Request completed and returned'
     }
   },
 };
 
-const app = express();
 
+// Express & Apollo setup
+const app = express();
 const server = new ApolloServer({
   typeDefs,
-  resolvers,
+  resolvers, 
 });
 
 server.applyMiddleware({

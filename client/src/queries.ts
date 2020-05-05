@@ -9,7 +9,7 @@ const getAllQuery = gql`
 `;
 
 const addTestMutation = gql`
-  mutation{
+  mutation {
     hello
   }
 `;

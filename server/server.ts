@@ -1,6 +1,8 @@
 const express = require('express');
+const graphql = require('graphql')
 const { ApolloServer } = require('apollo-server-express');
 const { gql } = require('apollo-server');
+import { rateLimiter } from './rateLimiter'
 
 // Types
 const typeDefs = gql`
@@ -22,7 +24,6 @@ const resolvers = {
   },
 };
 
-const bool = false;
 
 // Express & Apollo setup
 const app = express();
@@ -32,20 +33,9 @@ const server = new ApolloServer({
   context: ({req, res}) => ({req, res}),
   plugins: [
     {
-      // serverWillStart() {console.log('server started')},
-      requestDidStart(requestContext) {
-        console.log('req started')
-        return {
-          parsingDidStart(requestContext) {
-            console.log(requestContext.context.req.ip)
-            if (bool) {
-              console.log('parsin')
-            } else {
-              throw new Error('Too many connects')
-            }
-          },
-        }
-      },      
+      requestDidStart(requestContext, responseContext) {
+        rateLimiter(requestContext, responseContext)
+      },   
     }
   ]
 })

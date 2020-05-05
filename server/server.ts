@@ -5,13 +5,16 @@ const { gql } = require('apollo-server');
 // Types
 const typeDefs = gql`
   type Query {
+    test: String!
+  }, 
+  type Mutation {
     hello: String!
   }, 
 `;
  
 // Resolvers
 const resolvers = {
-  Query: {
+  Mutation: {
     hello: (parent, args, context, info) => {
       // console.log(context.req.body)
       return 'Request completed and returned'

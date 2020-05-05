@@ -1,6 +1,8 @@
 const express = require('express');
+const graphql = require('graphql')
 const { ApolloServer } = require('apollo-server-express');
 const { gql } = require('apollo-server');
+import { rateLimiter } from './rateLimiter'
 
 // Types
 const typeDefs = gql`
@@ -27,8 +29,16 @@ const resolvers = {
 const app = express();
 const server = new ApolloServer({
   typeDefs,
-  resolvers, 
-});
+  resolvers,
+  context: ({req, res}) => ({req, res}),
+  plugins: [
+    {
+      requestDidStart(requestContext, responseContext) {
+        rateLimiter(requestContext, responseContext)
+      },   
+    }
+  ]
+})
 
 server.applyMiddleware({
   app,

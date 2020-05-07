@@ -5,7 +5,11 @@ import {
   GraphQLObjectType,
   GraphQLResolveInfo,
   GraphQLError,
+  GraphQLSchema,
+  GraphQLType,
+  GraphQLNamedType
 } from 'graphql';
+import { type } from 'os';
 
 // let count: number = 5;
 
@@ -34,8 +38,10 @@ const rateLimiter = (limit: number) => {
 };
 
 export class portaraSchemaDirective extends SchemaDirectiveVisitor {
-  visitFieldDefinition(field: GraphQLField<any, any>, details) {
-    
+  
+  
+
+  visitFieldDefinition(field: GraphQLField<any, any>, details) {  
     const { limit } = this.args;
     const fields = details.objectType.getFields();
     
@@ -46,8 +52,6 @@ export class portaraSchemaDirective extends SchemaDirectiveVisitor {
     }
 
     field.resolve = (object, args, context, info) => {
-      // console.log('FIELD: ', field);
-      
       variables[`rateLimiter-${info.fieldName}`]();
       return variables[info.fieldName]();
     };
@@ -55,7 +59,6 @@ export class portaraSchemaDirective extends SchemaDirectiveVisitor {
   visitObject(type: GraphQLObjectType) {
     const { limit } = this.args;
     const fields = type.getFields();
-
     const variables = {};
     const func = rateLimiter(limit);
 
@@ -69,4 +72,31 @@ export class portaraSchemaDirective extends SchemaDirectiveVisitor {
       }
     });
   }
+  visitSchema(schema: GraphQLSchema) {
+    const { limit } = this.args;
+    const func = rateLimiter(limit);
+    // Store all root types in an object
+    const allTypes = {}
+
+    Object.assign(allTypes, schema.getQueryType()?.getFields(), schema.getMutationType()?.getFields(), schema.getSubscriptionType()?.getFields())
+    
+    
+    Object.values(allTypes).forEach((field:any) => {
+      // console.log(field)
+      // if () 
+      if (!field.astNode!.directives!.some((directive) => directive.name.value === 'portara')) {
+        if (field.resolve) {
+          allTypes[field.name] = field.resolve;
+          field.resolve = (object, args, context, info) => {
+            func();
+            return allTypes[field.name]();
+          };
+        }
+      }
+    })
+
+    
+    
+  }
 }
+

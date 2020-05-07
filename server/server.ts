@@ -12,8 +12,9 @@ const typeDefs = gql`
   type Query {
     test: String!
   }, 
-  type Mutation @portara(limit: 2) {
-    hello: String! 
+  type Mutation @portara(limit: 20) {
+    hello: String! #@portara(limit: 2)
+    bye: String! #@portara(limit: 2)
   }, 
 `;
  
@@ -22,6 +23,9 @@ const resolvers = {
   Mutation: {
     hello: (parent, args, context, info) => {
       return 'Request completed and returned'
+    },
+    bye: (parent, args, context, info) => {
+      return 'Goodbye world'
     }
   },
 };

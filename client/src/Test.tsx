@@ -2,13 +2,6 @@ import React, { useState, ChangeEvent } from 'react';
 import { useMutation, useQuery} from '@apollo/react-hooks'
 import { getAllQuery, addTestMutation } from './queries'
 
-
-// interface ResponseDisplay {
-//   name: string;
-//   message: string;
-// }
-
-
 const Test: React.FC = (): JSX.Element => {
   const [addTest, { data }] = useMutation(addTestMutation)
   const [inputValue, setInputValue] = useState(0);
@@ -20,13 +13,12 @@ const Test: React.FC = (): JSX.Element => {
       <form 
         className ="formContainer" 
         id="testForm"
-        onSubmit={(e) =>{
+        onSubmit={async (e) =>{
           e.preventDefault()
           document.getElementById('resultsList')!.innerHTML = ''
-          for (let i = 0; i < inputValue; i++) {
-            addTest() 
-            .then(res => {
-            //  setResponse(responses => responses.concat(res.data))
+          for (let i = 0; i < inputValue; i++) {          
+            await addTest() 
+            .then(res => {            
               const resp = document.createElement('LI');
               resp.innerText = `Request ${i+1}: ${res.data.hello}`
               resp.id = i.toString()
@@ -41,10 +33,6 @@ const Test: React.FC = (): JSX.Element => {
           }
         }}
       >
-        {/* <div className="inputContainer" id="endpointInput">
-          <label>Endpoint: </label>
-          <input type="text" placeholder="localhost:4000/graphql"></input>
-        </div> */}
         <div className="inputContainer" id="requestInput">
           <label>Requests: </label>
           <input 

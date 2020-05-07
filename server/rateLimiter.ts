@@ -35,10 +35,10 @@ const rateLimiter = (limit: number) => {
 
 export class portaraSchemaDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(field: GraphQLField<any, any>, details) {
-    // console.log(field.astNode.directives[0].name);
+    
     const { limit } = this.args;
     const fields = details.objectType.getFields();
-
+    
     const variables = {};
     for (let field in fields) {
       variables[field] = fields[field].resolve;
@@ -47,6 +47,7 @@ export class portaraSchemaDirective extends SchemaDirectiveVisitor {
 
     field.resolve = (object, args, context, info) => {
       // console.log('FIELD: ', field);
+      
       variables[`rateLimiter-${info.fieldName}`]();
       return variables[info.fieldName]();
     };

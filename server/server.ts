@@ -2,15 +2,18 @@ const express = require('express');
 const graphql = require('graphql')
 const { ApolloServer } = require('apollo-server-express');
 const { gql } = require('apollo-server');
-import { rateLimiter } from './rateLimiter'
+// import { rateLimiter } from './rateLimiter'
+import { portaraSchemaDirective } from './rateLimiter'
 
 // Types
 const typeDefs = gql`
+  directive @portara(limit: Int!) on FIELD_DEFINITION | OBJECT
+
   type Query {
     test: String!
   }, 
-  type Mutation {
-    hello: String!
+  type Mutation @portara(limit: 2) {
+    hello: String! 
   }, 
 `;
  
@@ -18,7 +21,6 @@ const typeDefs = gql`
 const resolvers = {
   Mutation: {
     hello: (parent, args, context, info) => {
-      // console.log(context.req.body)
       return 'Request completed and returned'
     }
   },
@@ -31,13 +33,16 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   context: ({req, res}) => ({req, res}),
-  plugins: [
-    {
-      requestDidStart(requestContext, responseContext) {
-        rateLimiter(requestContext, responseContext)
-      },   
-    }
-  ]
+  // plugins: [
+  //   {
+  //     requestDidStart(requestContext, responseContext) {
+  //       rateLimiter(requestContext, responseContext)
+  //     },   
+  //   }
+  // ],
+  schemaDirectives: {
+    portara: portaraSchemaDirective,
+  },
 })
 
 server.applyMiddleware({

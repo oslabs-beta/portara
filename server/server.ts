@@ -7,15 +7,21 @@ import { portaraSchemaDirective } from './rateLimiter'
 
 // Types
 const typeDefs = gql`
-  directive @portara(limit: Int!) on FIELD_DEFINITION | OBJECT
+  directive @portara(limit: Int!) on FIELD_DEFINITION | OBJECT | SCHEMA
+
+  schema  @portara(limit: 25) {
+    query: Query
+    mutation: Mutation
+  }
 
   type Query {
     test: String!
-  }, 
-  type Mutation @portara(limit: 20) {
-    hello: String! #@portara(limit: 2)
+  }
+
+  type Mutation {
+    hello: String! # @portara(limit: 2)
     bye: String! #@portara(limit: 2)
-  }, 
+  }
 `;
  
 // Resolvers

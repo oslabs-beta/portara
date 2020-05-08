@@ -16,7 +16,7 @@ const client = asyncRedis.createClient();
 
 // Redis Rate Limiter -------------------------------------------
 const rateLimiter = async (limit: number, ip: string, scope: string) => {
-  const expirationTimeVariable = 10; // NEED TO CHANGE
+  const expirationTimeVariable = 20; // NEED TO CHANGE
   const key = ip + '_' + scope;
 
   let exists = await client.exists(key);
@@ -29,12 +29,7 @@ const rateLimiter = async (limit: number, ip: string, scope: string) => {
     let value = await client.get(key);
     value = Number(value);
 
-    if (value > limit) {
-      return false;
-    } else {
-      return true;
-    }
-    
+    return value > limit ? false : true;
   }
 };
 //---------------------------------------------------------------
@@ -44,51 +39,60 @@ export class portaraSchemaDirective extends SchemaDirectiveVisitor {
     const { limit } = this.args;
     const { resolve = defaultFieldResolver } = field;
 
-    field.resolve = async (...ogArgs) => {
-      const [object, args, context, info] = ogArgs;
+    field.resolve = async (...originalArgs) => {
+      const [object, args, context, info] = originalArgs;
       const underLimit = await rateLimiter(limit, context.req.ip, info.fieldName);
       if (underLimit) {
-        return resolve(...ogArgs);
+        return resolve(...originalArgs);
       } else return new Error('Over Limit');
     };
   }
+
+  visitObject(type: GraphQLObjectType) {
+    const { limit } = this.args;
+    const fields = type.getFields();
+
+    const variables = {};
+    Object.values(fields).forEach((field) => {
+      if (!field.astNode!.directives!.some((directive) => directive.name.value === 'portara')) {
+        variables[field.name] = field.resolve;
+        field.resolve = async (...originalArgs) => {
+          const [object, args, context, info] = originalArgs;
+          console.log(info);
+          const underLimit = await rateLimiter(limit, context.req.ip, type.toString());
+          if (underLimit) {
+            return variables[field.name](...originalArgs);
+          } else return new Error('Over Limit');
+        };
+      }
+    });
+  }
+
+  visitSchema(schema: GraphQLSchema) {
+    const { limit } = this.args;
+    const allTypes = {};
+    Object.assign(
+      allTypes,
+      schema.getQueryType()?.getFields(),
+      schema.getMutationType()?.getFields(),
+      schema.getSubscriptionType()?.getFields()
+    );
+    Object.values(allTypes).forEach((field: any) => {
+      if (!field.astNode!.directives!.some((directive) => directive.name.value === 'portara')) {
+        if (field.resolve) {
+          allTypes[field.name] = field.resolve;
+          field.resolve = async (...originalArgs) => {
+            const [object, args, context, info] = originalArgs;
+            const underLimit = await rateLimiter(limit, context.req.ip, 'PortaraSchema');
+            if (underLimit) {
+              return allTypes[field.name](...originalArgs);
+            } else return new Error('Over Limit');
+          };
+        }
+      }
+    });
+  }
 }
-// visitObject(type: GraphQLObjectType) {
-//   const { limit } = this.args;
-//   const fields = type.getFields();
-//   const variables = {};
-//   const func = rateLimiter(limit);
-//   Object.values(fields).forEach((field) => {
-//     if (!field.astNode!.directives!.some((directive) => directive.name.value === 'portara')) {
-//       variables[field.name] = field.resolve;
-//       field.resolve = (object, args, context, info) => {
-//         func();
-//         return variables[field.name]();
-//       };
-//     }
-//   });
-// }
-// visitSchema(schema: GraphQLSchema) {
-//   const { limit } = this.args;
-//   const func = rateLimiter(limit);
-//   // Store all root types in an object
-//   const allTypes = {}
-//   Object.assign(allTypes, schema.getQueryType()?.getFields(), schema.getMutationType()?.getFields(), schema.getSubscriptionType()?.getFields())
-//   Object.values(allTypes).forEach((field:any) => {
-//     // console.log(field)
-//     // if ()
-//     if (!field.astNode!.directives!.some((directive) => directive.name.value === 'portara')) {
-//       if (field.resolve) {
-//         allTypes[field.name] = field.resolve;
-//         field.resolve = (object, args, context, info) => {
-//           func();
-//           return allTypes[field.name]();
-//         };
-//       }
-//     }
-//   })
-//   }
-// }
 // Redis Connection:
 /*
 Endpoint:

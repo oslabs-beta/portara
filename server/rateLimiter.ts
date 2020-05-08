@@ -7,96 +7,96 @@ import {
   GraphQLError,
   GraphQLSchema,
   GraphQLType,
-  GraphQLNamedType
+  GraphQLNamedType,
 } from 'graphql';
 import { type } from 'os';
+const asyncRedis = require('async-redis');
+const redis = require('redis');
+const client = asyncRedis.createClient();
 
-// let count: number = 5;
+// Redis Rate Limiter -------------------------------------------
+const rateLimiter = async (limit: number, ip: string, scope: string) => {
+  const expirationTimeVariable = 20; // NEED TO CHANGE
+  const key = ip + '_' + scope;
 
-// export const rateLimiter = (requestContext: any, responseContext: any, options: any = {
-//   requestLimit: 10,
-//   throttleSetting: null,
-//   timer: 20,
-// }) => {
-//   count++;
-//   console.log(requestContext.context.req.ip)
-//   if (count >= options.requestLimit) {
-//     throw new Error(`Request limit exceeded. Try again in ${options.timer} minutes`)
-//   }
-//   console.log(count)
-// }
+  let exists = await client.exists(key);
 
-const rateLimiter = (limit: number) => {
-  let count: number = 0;
-  return function () {
-    if (count === limit) {
-      throw new Error("nope, you've exceeded your requests");
-    }
-    count += 1;
-    console.log(count);
-  };
+  if (exists === 0) {
+    await client.setex(key, expirationTimeVariable, 1);
+    return true;
+  } else {
+    await client.incr(key);
+    let value = await client.get(key);
+    value = Number(value);
+
+    return value > limit ? false : true;
+  }
 };
+//---------------------------------------------------------------
 
 export class portaraSchemaDirective extends SchemaDirectiveVisitor {
-  
-  
-
-  visitFieldDefinition(field: GraphQLField<any, any>, details) {  
+  visitFieldDefinition(field: GraphQLField<any, any>, details) {
     const { limit } = this.args;
-    const fields = details.objectType.getFields();
-    
-    const variables = {};
-    for (let field in fields) {
-      variables[field] = fields[field].resolve;
-      variables[`rateLimiter-${field}`] = rateLimiter(limit);
-    }
+    const { resolve = defaultFieldResolver } = field;
 
-    field.resolve = (object, args, context, info) => {
-      variables[`rateLimiter-${info.fieldName}`]();
-      return variables[info.fieldName]();
+    field.resolve = async (...originalArgs) => {
+      const [object, args, context, info] = originalArgs;
+      const underLimit = await rateLimiter(limit, context.req.ip, info.fieldName);
+      if (underLimit) {
+        return resolve(...originalArgs);
+      } else return new Error('Over Limit');
     };
   }
+
   visitObject(type: GraphQLObjectType) {
     const { limit } = this.args;
     const fields = type.getFields();
-    const variables = {};
-    const func = rateLimiter(limit);
 
+    const variables = {};
     Object.values(fields).forEach((field) => {
       if (!field.astNode!.directives!.some((directive) => directive.name.value === 'portara')) {
         variables[field.name] = field.resolve;
-        field.resolve = (object, args, context, info) => {
-          func();
-          return variables[field.name]();
+        field.resolve = async (...originalArgs) => {
+          const [object, args, context, info] = originalArgs;
+          console.log(info);
+          const underLimit = await rateLimiter(limit, context.req.ip, type.toString());
+          if (underLimit) {
+            return variables[field.name](...originalArgs);
+          } else return new Error('Over Limit');
         };
       }
     });
   }
+
   visitSchema(schema: GraphQLSchema) {
     const { limit } = this.args;
-    const func = rateLimiter(limit);
-    // Store all root types in an object
-    const allTypes = {}
-
-    Object.assign(allTypes, schema.getQueryType()?.getFields(), schema.getMutationType()?.getFields(), schema.getSubscriptionType()?.getFields())
-    
-    
-    Object.values(allTypes).forEach((field:any) => {
-      // console.log(field)
-      // if () 
+    const allTypes = {};
+    Object.assign(
+      allTypes,
+      schema.getQueryType()?.getFields(),
+      schema.getMutationType()?.getFields(),
+      schema.getSubscriptionType()?.getFields()
+    );
+    Object.values(allTypes).forEach((field: any) => {
       if (!field.astNode!.directives!.some((directive) => directive.name.value === 'portara')) {
         if (field.resolve) {
           allTypes[field.name] = field.resolve;
-          field.resolve = (object, args, context, info) => {
-            func();
-            return allTypes[field.name]();
+          field.resolve = async (...originalArgs) => {
+            const [object, args, context, info] = originalArgs;
+            const underLimit = await rateLimiter(limit, context.req.ip, 'PortaraSchema');
+            if (underLimit) {
+              return allTypes[field.name](...originalArgs);
+            } else return new Error('Over Limit');
           };
         }
       }
-    })
-
-    
-    
+    });
   }
 }
-
+// Redis Connection:
+/*
+Endpoint:
+redis-11068.c98.us-east-1-4.ec2.cloud.redislabs.com:11068
+In Terminal:
+redis-cli -h redis-11068.c98.us-east-1-4.ec2.cloud.redislabs.com -p 11068 -a cats35_ql
+*/

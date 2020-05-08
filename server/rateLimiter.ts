@@ -23,19 +23,18 @@ const rateLimiter = async (limit: number, ip: string, scope: string) => {
 
   if (exists === 0) {
     await client.setex(key, expirationTimeVariable, 1);
+    return true;
   } else {
     await client.incr(key);
     let value = await client.get(key);
     value = Number(value);
 
-    await console.log('CURRENT VALUE', value);
-
-    console.log('value,', value, 'limit', limit);
     if (value > limit) {
-      console.log('value,', value, 'limit', limit);
       return false;
+    } else {
+      return true;
     }
-    return true;
+    
   }
 };
 //---------------------------------------------------------------
@@ -44,27 +43,11 @@ export class portaraSchemaDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(field: GraphQLField<any, any>, details) {
     const { limit } = this.args;
     const { resolve = defaultFieldResolver } = field;
-    //   const fields = details.objectType.getFields();
-    //   console.log('FIELDS:', fields.hello)
-    //   // console.log('PROTO:', fields.hello.resolve.__proto__.length)
-    //   // console.log('O.GPO:', Object.getPrototypeOf(fields.hello.resolve))
-    //   // console.log(Object.getOwnPropertyNames(fields.hello.resolve))
-    //   const variables = {};
-    //   for (let field in fields) {
-    //     variables[field] = fields[field].resolve;
-    //     // variables[`rateLimiter-${field}`] = rateLimiter(limit);
-    //   }
-    //   field.resolve = (object, args, context, info) => {
-    //     console.log(context.req.ip)
-    //     variables[`rateLimiter-${info.fieldName}`]();
-    //     return variables[info.fieldName]();
-    //   };
+
     field.resolve = async (...ogArgs) => {
       const [object, args, context, info] = ogArgs;
       const underLimit = await rateLimiter(limit, context.req.ip, info.fieldName);
-      console.log('LINE 101 RANDOMSAOIDN');
-
-      if (!underLimit) {
+      if (underLimit) {
         return resolve(...ogArgs);
       } else return new Error('Over Limit');
     };

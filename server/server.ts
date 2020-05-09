@@ -6,12 +6,12 @@ const { gql } = require('apollo-server');
 import { portaraSchemaDirective } from './rateLimiter';
 // Types
 const typeDefs = gql`
-  directive @portara(limit: Int!, per: String!) on FIELD_DEFINITION | OBJECT 
+  directive @portara(limit: Int!, per: ID!) on FIELD_DEFINITION | OBJECT 
 
   type Query {
     test: String!
   }
-  type Mutation  @portara(limit: 8, per: "1 secs"){
+  type Mutation  @portara(limit: 8, per: 100){
     hello: String! @portara(limit: 2, per: "100")
     bye: String! #@portara(limit: 2)
   }

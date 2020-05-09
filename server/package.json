@@ -1,9 +1,13 @@
 {
   "name": "portara",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Apollo GraphQL rate limiter that uses directives",
   "main": "rateLimiter.js",
   "bin": "rateLimiter.js",
+  "files": [
+    "package.json",
+    "/examples" 
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server.ts"
@@ -16,15 +20,8 @@
   "author": "portara-labs",
   "license": "MIT",
   "dependencies": {
-    "@types/node": "^13.13.4",
     "apollo-server": "^2.13.0",
-    "apollo-server-express": "^2.13.0",
     "async-redis": "^1.1.7",
-    "dotgitignore": "^2.1.0",
-    "express": "^4.17.1",
-    "graphql": "^15.0.0",
-    "redis": "^3.0.2",
-    "ts-node": "^8.10.1",
-    "typescript": "^3.8.3"
+    "graphql": "^15.0.0"
   }
 }

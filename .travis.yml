@@ -5,7 +5,8 @@ node_js:
 
 #cache: npm - caches all npm dependencies for each build
 
-#before_install:
+before_install:
+  - npm i react-scripts
 
 install:
   - npm install

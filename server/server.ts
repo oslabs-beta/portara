@@ -11,8 +11,8 @@ const typeDefs = gql`
   type Query {
     test: String!
   }
-  type Mutation  @portara(limit: 8, per: "10 seconds"){
-    hello: String! @portara(limit: 2, per: "1 minute")
+  type Mutation  @portara(limit: 8, per: "1 secs"){
+    hello: String! @portara(limit: 2, per: "100")
     bye: String! #@portara(limit: 2)
   }
 `;

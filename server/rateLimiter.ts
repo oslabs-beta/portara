@@ -19,24 +19,24 @@ const rateLimiter = async (limit: number, per: string, ip: string, scope: string
 
   // Per Functionality ---------------------------
 
-  const perNum = Number(per.match(/\d+/g)?.toString()) 
+  const perNum = parseFloat(<any> per.match(/\d+/g)?.toString()) 
   const perWord = per.match(/[a-zA-Z]+/g)?.toString().toLowerCase();
 
   const timeFrameMultiplier = (timeFrame) => {
     if (timeFrame === 'milliseconds' || timeFrame === 'millisecond' || timeFrame === 'mil' || timeFrame === 'mils') {
-      return 0.001;
+      return 1
     } else if (timeFrame === 'seconds' || timeFrame === 'second' || timeFrame === 'sec' || timeFrame === 'secs') {
-      return 1;
+      return 1000;
     } else if (timeFrame === 'minutes' || timeFrame === 'minute' || timeFrame === 'min' || timeFrame === 'mins') {
-      return 60;
+      return 1000 * 60;
     } else if (timeFrame === 'hours' || timeFrame === 'hour' || timeFrame === 'h') {
-      return 60 * 60;
+      return 1000 * 60 * 60;
     } else if (timeFrame === 'days' || timeFrame === 'day' || timeFrame === 'd') {
-      return 60 * 60 * 24;
+      return 1000 * 60 * 60 * 24;
     } else if (timeFrame === 'weeks' || timeFrame === 'week' || timeFrame === 'w') {
-      return 60 * 60 * 24 * 7
+      return 1000 * 60 * 60 * 24 * 7;
     } else if (timeFrame === '' || timeFrame === undefined) {
-      return 1;
+      return 1000;
     } else {
       return new Error('Not a valid measure of time!');
   }
@@ -51,7 +51,7 @@ const rateLimiter = async (limit: number, per: string, ip: string, scope: string
   let exists = await client.exists(key);
 
   if (exists === 0) {
-    await client.setex(key, expirationTimeVariable, 1);
+    await client.psetex(key, expirationTimeVariable, 1);
     return true;
   } else {
     await client.incr(key);

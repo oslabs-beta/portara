@@ -11,8 +11,12 @@ Portara is an open source rate limiter designed for easy use with Apollo Server,
 ## Install
 With npm:
 
-`npm install --save portara`
+```
+npm install --save portara
+```
 
+**Note:** Redis is a requirement for this package. You can visit [Redis' Getting Started Page](https://redislabs.com/get-started-with-redis/) for information on getting started with Redis. If you are using multiple servers (or the serverless framework), we recommend using Redis Cloud.
+ 
 
 ## Getting Started
 
@@ -102,8 +106,8 @@ type Query @portara( limit: 10, per: "5 seconds" ) {
 
  ```graphql
 type Query @portara( limit: 12, per: "5 h" ) {
-  hello: String! @portara( limit: 20, "per: 94 mils" )
-  goodbye: String! @portara( limit: 90, "per: 2 minutes" )
+  hello: String! @portara( limit: 20, per: "94 mils" )
+  goodbye: String! @portara( limit: 90, per: "2 minutes" )
   thankyou: String!
 }
  ```
@@ -114,21 +118,21 @@ type Query @portara( limit: 12, per: "5 h" ) {
 
  ```graphql
 type Query {
-  hello: String! @portara( limit: 40 )
+  hello: String! @portara( limit: 40, per: 1)
   goodbye: String!
 }
  ```
  
-- [ ] **Connect with the Portara Team!**
+- [ ] **Lastly, Connect with the Portara Team!**
 
 @Portara 
 
 portara35@gmail.com
 
-Steve Frend: https://github.com/stevefrend
+Steve Frend: [Steve's Github](https://github.com/stevefrend) and [Steve's LinkedIn](https://www.linkedin.com/in/steve-christersson-frend-697a8588/)
 
-Todd Alexander: https://github.com/toddalex
+Todd Alexander: [Todd's Github](https://github.com/toddalex) and [Todd's LinkedIn](http://www.linkedin.com/in/toddmalexander)
 
-Cary L Chan: https://github.com/caryLchan
+Cary L Chan: [Cary's Github](https://github.com/caryLchan) and [Cary's LinkedIn](https://www.linkedin.com/in/cary-chan-2b7933b/)
 
-Alexander Infante: https://github.com/Alexander-Infante
+Alexander Infante: [Alex's Github](https://github.com/Alexander-Infante) and [Alex's LinkedIn](https://www.linkedin.com/in/alexanderinfante/)

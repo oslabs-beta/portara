@@ -1,0 +1,20 @@
+{
+  "name": "portara",
+  "version": "1.0.0",
+  "description": "Portara",
+  "main": "index.js",
+  "scripts": {
+    "test": "cd client && npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toddalex/portara.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/toddalex/portara/issues"
+  },
+  "homepage": "https://github.com/toddalex/portara#readme"
+}

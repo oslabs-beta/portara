@@ -4,7 +4,8 @@
   "description": "Portara",
   "main": "index.js",
   "scripts": {
-    "test": "cd client && npm test"
+    "test": "cd client && npm test",
+    "install": "cd client && npm install"
   },
   "repository": {
     "type": "git",

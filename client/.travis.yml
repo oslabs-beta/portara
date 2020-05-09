@@ -1,10 +1,23 @@
 language: node_js
+# specifies what versions of node to build on, stable accepts any version
 node_js:
  - "stable"
+
+#cache: npm - caches all npm dependencies for each build
+
+#before_install:
 
 install:
   - npm install
 
+#before_script
+
 script:
   - npm test
 
+#after_success:
+
+#after_failure: 
+
+notifications:
+  slack: lacohort35:EBZSpU9JcZUGQaasufjqdI32

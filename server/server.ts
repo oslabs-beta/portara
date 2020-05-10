@@ -9,7 +9,7 @@ const typeDefs = gql`
     test: String!
   }
   type Mutation  @portara(limit: 8, per: "10 seconds"){
-    hello: String! @portara(limit: 2, per: "5s")
+    hello: String! @portara(limit: 2, per: "60 seconds") #example: can also be 5 sec/secs/second/seconds with or without space
     bye: String! 
   }
 `;

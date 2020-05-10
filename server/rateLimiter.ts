@@ -33,8 +33,8 @@ const rateLimiter = async (limit: number, per: string, ip: string, scope: string
       return 1;
     } else {
       return new Error('Not a valid measure of time!');
+    }
   }
-}
 
   // get final result of expirationTimeVariable
   let expirationTimeVariable = ( <number> timeFrameMultiplier(perWord) * perNum);

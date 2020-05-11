@@ -4,18 +4,18 @@
   "description": "Portara",
   "main": "index.js",
   "scripts": {
-    "test": "cd client && npm test",
-    "install": "cd client && npm install"
+    "test": "cd server && npm test",
+    "install": "cd server && npm install"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/toddalex/portara.git"
+    "url": "git+https://github.com/oslabs-beta/portara.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/toddalex/portara/issues"
+    "url": "https://github.com/oslabs-beta/portara/issues"
   },
-  "homepage": "https://github.com/toddalex/portara#readme"
+  "homepage": "https://github.com/oslabs-beta/portara#readme"
 }

@@ -75,7 +75,7 @@ export class portaraSchemaDirective extends SchemaDirectiveVisitor {
   visitObject(type: GraphQLObjectType) {
     const { limit, per } = this.args;
     const fields = type.getFields();
-
+    console.log('weigwpeing')
     Object.values(fields).forEach((field) => {
       const { resolve = defaultFieldResolver } = field;
       if (!field.astNode!.directives!.some((directive) => directive.name.value === 'portara')) {

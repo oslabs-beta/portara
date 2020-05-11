@@ -6,7 +6,7 @@
   "bin": "rateLimiter.js",
   "files": [
     "package.json",
-    "/examples" 
+    "/examples"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -22,6 +22,8 @@
   "dependencies": {
     "apollo-server": "^2.13.0",
     "async-redis": "^1.1.7",
-    "graphql": "^15.0.0"
+    "graphql": "^15.0.0",
+    "ts-node": "^8.10.1",
+    "typescript": "^3.8.3"
   }
 }

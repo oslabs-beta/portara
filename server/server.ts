@@ -1,10 +1,7 @@
-const express = require('express');
-const graphql = require('graphql');
-const { ApolloServer } = require('apollo-server-express');
-const { gql } = require('apollo-server');
-// import { rateLimiter } from './rateLimiter'
+const { ApolloServer, gql } = require('apollo-server');
 import { portaraSchemaDirective } from './rateLimiter';
-// Types
+
+// typeDefs
 const typeDefs = gql`
   directive @portara(limit: Int!, per: ID!) on FIELD_DEFINITION | OBJECT 
 
@@ -16,6 +13,7 @@ const typeDefs = gql`
     bye: String! #@portara(limit: 2)
   }
 `;
+
 // Resolvers
 const resolvers = {
   Query: {
@@ -32,26 +30,16 @@ const resolvers = {
     },
   },
 };
-// Express & Apollo setup
-const app = express();
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
   context: ({ req, res }) => ({ req, res }),
-  // plugins: [
-  //   {
-  //     requestDidStart(requestContext, responseContext) {
-  //       rateLimiter(requestContext, responseContext)
-  //     },
-  //   }
-  // ],
   schemaDirectives: {
     portara: portaraSchemaDirective,
   },
 });
-server.applyMiddleware({
-  app,
-});
-app.listen({ port: 4000 }, () => {
+
+server.listen({ port: 4000 }, () => {
   console.log(`Server running @ PORT 4000`);
 });

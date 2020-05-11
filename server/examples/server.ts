@@ -3,14 +3,16 @@ import { portaraSchemaDirective } from '../rateLimiter';
 
 // typeDefs
 const typeDefs = gql`
-  directive @portara(limit: Int!, per: String!) on FIELD_DEFINITION | OBJECT 
+  directive @portara(limit: Int!, per: ID!) on FIELD_DEFINITION | OBJECT 
 
   type Query {
     test: String!
   }
+
   type Mutation  @portara(limit: 8, per: "10 seconds") { #object level rate limiting
     hello: String! @portara(limit: 2, per: "5s") #field level rate limiting. example: can also be 5 sec/secs/second/seconds with or without space
     bye: String! 
+
   }
 `;
 

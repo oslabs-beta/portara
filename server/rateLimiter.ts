@@ -9,11 +9,11 @@ const asyncRedis = require('async-redis');
 const client = asyncRedis.createClient();
 
 // Redis Rate Limiter -------------------------------------------
-const rateLimiter = async (limit: number, per: string, ip: string, scope: string) => {
+export const rateLimiter = async (limit: number, per: string, ip: string, scope: string) => {
 
   // Per Functionality ---------------------------
 
-  const perNum = parseFloat(<any> per.match(/\d+/g)?.toString()) 
+  const perNum = parseFloat(<any>per.match(/\d+/g)?.toString())
   const perWord = per.match(/[a-zA-Z]+/g)?.toString().toLowerCase();
 
   const timeFrameMultiplier = (timeFrame) => {
@@ -37,7 +37,7 @@ const rateLimiter = async (limit: number, per: string, ip: string, scope: string
   }
 
   // get final result of expirationTimeVariable
-  let expirationTimeVariable = ( <number> timeFrameMultiplier(perWord) * perNum);
+  let expirationTimeVariable = (<number>timeFrameMultiplier(perWord) * perNum);
   // ---------------------------------------------
 
   const key = ip + '_' + scope;
@@ -61,21 +61,20 @@ export class portaraSchemaDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(field: GraphQLField<any, any>, details) {
     const { limit, per } = this.args;
     const { resolve = defaultFieldResolver } = field;
-
+    console.log("FIELD")
     field.resolve = async (...originalArgs) => {
       const [object, args, context, info] = originalArgs;
       const underLimit = await rateLimiter(limit, per, context.req.ip, info.fieldName);
       if (underLimit) {
-        return resolve( ...originalArgs);
+        return resolve(...originalArgs);
       } else return new Error('Over Limit');
     };
-    
+
   }
 
   visitObject(type: GraphQLObjectType) {
     const { limit, per } = this.args;
     const fields = type.getFields();
-    console.log('weigwpeing')
     Object.values(fields).forEach((field) => {
       const { resolve = defaultFieldResolver } = field;
       if (!field.astNode!.directives!.some((directive) => directive.name.value === 'portara')) {

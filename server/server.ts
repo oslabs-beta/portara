@@ -8,8 +8,8 @@ const typeDefs = gql`
   type Query {
     test: String!
   }
-  type Mutation  @portara(limit: 8, per: 100){
-    hello: String! @portara(limit: 2, per: "100")
+  type Mutation  @portara(limit: 8, per: 10){
+    hello: String! @portara(limit: 2, per: "10")
     bye: String! #@portara(limit: 2)
   }
 `;

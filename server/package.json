@@ -16,7 +16,7 @@
   },
   "scripts": {
     "dev": "nodemon server.ts",
-    "test": "jest"
+    "test": "jest --forceExit --detectOpenHandles"
   },
   "keywords": [
     "rate limiter",

@@ -69,6 +69,22 @@ describe('Receives a response from our GraphQL Query', () => {
 
 // Rate Limiter Redis Mock Testing -------------------------------------
 describe('Key : Value Pairs are stored correctly in Redis', () => {
+  /*
+ const key = ip + '_' + scope;
+
+  let exists = await client.exists(key);
+
+  if (exists === 0) {
+    await client.psetex(key, expirationTimeVariable, 1);
+    return true;
+  } else {
+    await client.incr(key);
+    let value = await client.get(key);
+    value = Number(value);
+    return value > limit ? false : true;
+  }
+  */
+
 
   it('Receieves the IP Address', async () => {
     // test
@@ -79,6 +95,9 @@ describe('Key : Value Pairs are stored correctly in Redis', () => {
   });
 
   it('Checks to see if the key exists', async () => {
+    const falsyResponse = client.get();
+    expect(falsyResponse).toBeFalsy();
+    client.set('truthyKey', 1);
 
   });
 

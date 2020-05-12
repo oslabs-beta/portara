@@ -1,7 +1,7 @@
 import { graphql } from 'graphql'
 import { gql, SchemaDirectiveVisitor } from 'apollo-server'
 import { makeExecutableSchema, IResolverValidationOptions } from 'graphql-tools'
-import { portaraSchemaDirective, rateLimiter } from '../rateLimiter';
+import { portaraSchemaDirective, rateLimiter, timeFrameMultiplier } from '../rateLimiter';
 
 // Globally allows resolvers to not exist in the original schema
 const resolverValidationOptions: IResolverValidationOptions = {
@@ -65,3 +65,17 @@ describe('Receives a response from our GraphQL Query', () => {
   })
 })
 
+describe('Rate Limiter accepts various timeframe values', () => {
+  it('returns an error when input value is not recognized', () => {
+    const timeframe = timeFrameMultiplier('years')
+    expect(timeframe).toBeInstanceOf(Error)
+  })
+
+  it('defaults to 1 second when value is an empty string', ()=> {
+    const timeframe = timeFrameMultiplier('')
+    expect(timeframe).toEqual(1000)
+  })
+
+
+
+})

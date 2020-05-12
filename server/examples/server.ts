@@ -8,9 +8,11 @@ const typeDefs = gql`
   type Query {
     test: String!
   }
-  type Mutation  @portara(limit: 8, per: 10){
-    hello: String! @portara(limit: 2, per: "10")
-    bye: String! #@portara(limit: 2)
+
+  type Mutation  @portara(limit: 8, per: "10 seconds") { #object level rate limiting
+    hello: String! @portara(limit: 2, per: "5s") #field level rate limiting. example: can also be 5 sec/secs/second/seconds with or without space
+    bye: String! 
+
   }
 `;
 

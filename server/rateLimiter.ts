@@ -1,4 +1,4 @@
-const { SchemaDirectiveVisitor } = require('apollo-server');
+const { SchemaDirectiveVisitor }: any = require('apollo-server');
 import {
   defaultFieldResolver,
   GraphQLField,
@@ -61,12 +61,12 @@ export class portaraSchemaDirective extends SchemaDirectiveVisitor {
   async generateErrorMessage(limit, per, name, ip) {
     console.log(name)
     console.log(typeof name)
-    const timeLeft = await client.ttl(`${ip}_${name}`)    
+    const timeLeft = await client.ttl(`${ip}_${name}`)
     let error = `You have exceeded the request limit of ${limit} for the type(s) '${name}' . You have ${timeLeft} seconds left until the next request can be made.`;
     return error;
   }
-    
-  
+
+
 
   visitFieldDefinition(field: GraphQLField<any, any>, details) {
     const { limit, per } = this.args;

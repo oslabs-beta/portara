@@ -1,7 +1,7 @@
-import { graphql } from 'graphql'
-import { gql, SchemaDirectiveVisitor } from 'apollo-server'
-import { makeExecutableSchema, IResolverValidationOptions } from 'graphql-tools'
-import { portaraSchemaDirective, rateLimiter } from '../rateLimiter';
+const { graphql } = require('graphql')
+const { gql, SchemaDirectiveVisitor, makeExecutableSchema } = require('apollo-server')
+import { IResolverValidationOptions } from 'graphql-tools';
+const { portaraSchemaDirective } = require('../rateLimiter')
 
 // Globally allows resolvers to not exist in the original schema
 const resolverValidationOptions: IResolverValidationOptions = {
@@ -10,7 +10,6 @@ const resolverValidationOptions: IResolverValidationOptions = {
 // -------------------------------------------------------------
 
 describe('Receives a response from our GraphQL Query', () => {
-
   const resolvers = {
     Query: {
       test: (parent, args, context, info) => {
@@ -27,8 +26,10 @@ describe('Receives a response from our GraphQL Query', () => {
     },
   };
 
-  it('Completes a query without directive', async () => {
+  it('Completes a query without directive', async  () => {
     const typeDefs = gql`
+      directive @portara(limit: Int!, per: ID!) on FIELD_DEFINITION
+
       type Query {
         test: String!
       }
@@ -38,6 +39,9 @@ describe('Receives a response from our GraphQL Query', () => {
       typeDefs,
       resolvers,
       resolverValidationOptions,
+      schemaDirectives: {
+        portara: portaraSchemaDirective
+      }
     })
 
     const response = await graphql(schema, 'query { test }');

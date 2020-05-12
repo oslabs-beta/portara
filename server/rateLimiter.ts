@@ -58,7 +58,8 @@ export const rateLimiter = async (limit: number, per: string, ip: string, scope:
 
 export class portaraSchemaDirective extends SchemaDirectiveVisitor {
 
-  async generateErrorMessage(limit, per, name, ip) {
+
+  public async generateErrorMessage(limit, per, name, ip) {
     console.log(name)
     console.log(typeof name)
     const timeLeft = await client.ttl(`${ip}_${name}`)    
@@ -66,9 +67,7 @@ export class portaraSchemaDirective extends SchemaDirectiveVisitor {
     return error;
   }
     
-  
-
-  visitFieldDefinition(field: GraphQLField<any, any>, details) {
+  public visitFieldDefinition(field: GraphQLField<any, any>) {
     const { limit, per } = this.args;
     const { resolve = defaultFieldResolver } = field;
     field.resolve = async (...originalArgs) => {
@@ -85,7 +84,7 @@ export class portaraSchemaDirective extends SchemaDirectiveVisitor {
 
   }
 
-  visitObject(type: GraphQLObjectType) {
+  public visitObject(type: GraphQLObjectType) {
     const { limit, per } = this.args;
     const fields = type.getFields();
     Object.values(fields).forEach((field) => {

@@ -1,5 +1,6 @@
 const { ApolloServer, gql } = require('apollo-server');
 import { portaraSchemaDirective } from './rateLimiter';
+import { makeExecutableSchema } from 'graphql-tools'
 
 // typeDefs
 const typeDefs = gql`

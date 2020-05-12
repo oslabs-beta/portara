@@ -58,10 +58,7 @@ export const rateLimiter = async (limit: number, per: string, ip: string, scope:
 
 export class portaraSchemaDirective extends SchemaDirectiveVisitor {
 
-
-  public async generateErrorMessage(limit, per, name, ip) {
-    console.log(name)
-    console.log(typeof name)
+  async generateErrorMessage(limit, per, name, ip) {
     const timeLeft = await client.ttl(`${ip}_${name}`)
     let error = `You have exceeded the request limit of ${limit} for the type(s) '${name}' . You have ${timeLeft} seconds left until the next request can be made.`;
     return error;

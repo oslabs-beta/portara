@@ -12,7 +12,9 @@ install:
   - npm install
 
 #before_script
-
+services:
+  - redis-server
+  
 script:
   - npm test
 

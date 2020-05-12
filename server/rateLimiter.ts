@@ -11,11 +11,6 @@ const client = asyncRedis.createClient();
 // Redis Rate Limiter -------------------------------------------
 export const rateLimiter = async (limit: number, per: string, ip: string, scope: string) => {
 
-  // Per Functionality ---------------------------
-
-  const perNum = parseFloat(<any>per.match(/\d+/g)?.toString())
-  const perWord = per.match(/[a-zA-Z]+/g)?.toString().toLowerCase();
-
   const timeFrameMultiplier = (timeFrame) => {
     if (timeFrame === 'milliseconds' || timeFrame === 'millisecond' || timeFrame === 'mil' || timeFrame === 'mils' || timeFrame === 'ms') {
       return 1
@@ -35,6 +30,11 @@ export const rateLimiter = async (limit: number, per: string, ip: string, scope:
       return new Error('Not a valid measurement of time!');
     }
   }
+  // Per Functionality ---------------------------
+
+  const perNum = parseFloat(<any>per.match(/\d+/g)?.toString())
+  const perWord = per.match(/[a-zA-Z]+/g)?.toString().toLowerCase();
+
 
   // get final result of expirationTimeVariable
   let expirationTimeVariable = (<number>timeFrameMultiplier(perWord) * perNum);

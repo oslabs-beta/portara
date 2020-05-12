@@ -1,13 +1,15 @@
-const { graphql } = require('graphql')
-const { gql, SchemaDirectiveVisitor, makeExecutableSchema } = require('apollo-server')
-import { IResolverValidationOptions } from 'graphql-tools';
-const { portaraSchemaDirective } = require('../rateLimiter')
+import { graphql } from 'graphql'
+const { gql, makeExecutableSchema } = require('apollo-server')
+import { IResolverValidationOptions } from 'graphql-tools'
+import { portaraSchemaDirective } from '../rateLimiter';
 
 // Globally allows resolvers to not exist in the original schema
 const resolverValidationOptions: IResolverValidationOptions = {
   allowResolversNotInSchema: true
 };
 // -------------------------------------------------------------
+
+
 
 describe('Receives a response from our GraphQL Query', () => {
   const resolvers = {
@@ -69,3 +71,54 @@ describe('Receives a response from our GraphQL Query', () => {
   })
 })
 
+describe('rate limit test?', async () => {
+  const typeDefs = gql`
+  directive @portara(limit: Int!, per: ID!) on FIELD_DEFINITION | OBJECT 
+
+  type Query {
+    test: String!
+  }
+  type Mutation  {
+    hello: String! @portara(limit: 2, per: "10")
+    bye: String! 
+  }
+`;
+  const resolvers = {
+    Query: {
+      test: (parent, args, context, info) => {
+        return 'Test'
+      }
+    },
+    Mutation: {
+      hello: (parent, args, context, info) => {
+        // context.req.ip = "127.0.0.1"
+        return 'Hello World';
+      },
+      bye: (parent, args, context, info) => {
+        return 'Goodbye World';
+      },
+    },
+  };
+
+  const schema = makeExecutableSchema({
+    typeDefs,
+    resolvers,
+    resolverValidationOptions,
+    schemaDirectives: {
+      portara: portaraSchemaDirective,
+    },
+  })
+
+  it('Checks if decorated field resolvers return correct value', async () => {
+    const response = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
+    expect(response.data!.hello).toBe("Hello World");
+  })
+
+  it('Checks if decorated field resolvers return error message after going over the limit', async () => {
+    const response1 = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
+    const response2 = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
+    const response3 = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
+    expect(response3.data!.hello.length).toBeGreaterThan(15);
+  })
+
+})

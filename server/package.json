@@ -22,7 +22,7 @@
     "rate limiter",
     "apollo",
     "graphql",
-    "redis"
+    "async-redis"
   ],
   "author": "portara-labs",
   "license": "MIT",

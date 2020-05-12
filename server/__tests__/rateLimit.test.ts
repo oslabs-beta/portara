@@ -79,7 +79,6 @@ describe('Rate Limiter accepts various timeframe values', () => {
   })
 })
 
-// describe('rate limit test?', async () => {
 describe('rate limit test using @portara decorator', () => {
   beforeAll(async () => {
     if (client.status === "end") {
@@ -152,4 +151,3 @@ describe('rate limit test using @portara decorator', () => {
     expect(response6.errors![0].message).toContain('You have exceeded');
   })
 })
-// })

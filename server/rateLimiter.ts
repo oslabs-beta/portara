@@ -80,7 +80,6 @@ export class portaraSchemaDirective extends SchemaDirectiveVisitor {
         return new Error(error)
       };
     };
-
   }
 
   visitObject(type: GraphQLObjectType) {

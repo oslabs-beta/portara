@@ -1,15 +1,17 @@
 import { graphql } from 'graphql'
-import { gql, SchemaDirectiveVisitor } from 'apollo-server'
-import { makeExecutableSchema, IResolverValidationOptions } from 'graphql-tools'
-import { portaraSchemaDirective, rateLimiter } from '../rateLimiter';
-const redis = require('redis-mock');
-const client = redis.createClient();
+const { gql, makeExecutableSchema } = require('apollo-server')
+import { IResolverValidationOptions } from 'graphql-tools'
+import { portaraSchemaDirective } from '../rateLimiter';
+const asyncRedis = require('async-redis');
+const client = asyncRedis.createClient();
 
 // Globally allows resolvers to not exist in the original schema
 const resolverValidationOptions: IResolverValidationOptions = {
   allowResolversNotInSchema: true
 };
 // -------------------------------------------------------------
+
+
 
 describe('Receives a response from our GraphQL Query', () => {
 
@@ -67,41 +69,75 @@ describe('Receives a response from our GraphQL Query', () => {
   })
 })
 
-// Rate Limiter Redis Mock Testing -------------------------------------
-describe('Key : Value Pairs are stored correctly in Redis', () => {
+describe('rate limit test using @portara decorator', () => {
+  beforeAll(async () => {
+    if (client.status === "end") {
+      await client.connect()
+    }
+  })
+  //testing
+  afterAll(async () => {
+    await client.disconnect()
+  })
 
-  it('Receieves the IP Address', async () => {
-    // test
-  });
+  const typeDefs = gql`
+  directive @portara(limit: Int!, per: ID!) on FIELD_DEFINITION | OBJECT 
 
-  it('Receives the scope (Apollo Field Directive or Apollo Object)', async () => {
-    // test
-  });
+  type Query {
+    test: String!
+  }
+  type Mutation @portara(limit: 4, per: 10) {
+    hello: String! @portara(limit: 2, per: "10")
+    bye: String! 
+  }
+`;
+  const resolvers = {
+    Query: {
+      test: (parent, args, context, info) => {
+        return 'Test'
+      }
+    },
+    Mutation: {
+      hello: (parent, args, context, info) => {
+        return 'Hello World';
+      },
+      bye: (parent, args, context, info) => {
+        return 'Goodbye World';
+      },
+    },
+  };
 
-  it('Checks to see if the key exists', async () => {
+  const schema = makeExecutableSchema({
+    typeDefs,
+    resolvers,
+    resolverValidationOptions,
+    schemaDirectives: {
+      portara: portaraSchemaDirective,
+    },
+  })
 
-  });
+  it('Checks if decorated field resolvers return correct value', async () => {
+    const response1 = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
+    expect(response1.data!.hello).toBe("Hello World");
+  })
 
-  it('If key does not exists, sets the key value pair in Redis', async () => {
+  it('Checks if decorated field resolvers return error message after going over the limit', async () => {
+    const response2 = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
+    const response3 = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
+    expect(response3.errors![0].message).toContain('You have exceeded');
+  })
 
-  });
+  it('Check if decorated object resolvers return correct value', async () => {
+    const response1 = await graphql(schema, 'mutation { bye }', null, { req: { ip: "127.0.0.13" } })
+    expect(response1.data!.bye).toBe("Goodbye World");
+  })
 
-  it('Expires the key', async () => {
-
-  });
-
-  it('If the key does exist, increments the value', async () => {
-
-  });
-
-  it('Gets the value for the correct key', async () => {
-
-  });
-
-  it('Compares the value to the limit correctly', async () => {
-
-  });
-
-});
-
-// ---------------------------------------------------------------------
+  it('Checks if decorated object resolvers return error message after going over the limit', async () => {
+    const response2 = await graphql(schema, 'mutation { bye }', null, { req: { ip: "127.0.0.13" } });
+    const response3 = await graphql(schema, 'mutation { bye }', null, { req: { ip: "127.0.0.13" } });
+    const response4 = await graphql(schema, 'mutation { bye }', null, { req: { ip: "127.0.0.13" } });
+    const response5 = await graphql(schema, 'mutation { bye }', null, { req: { ip: "127.0.0.13" } });
+    const response6 = await graphql(schema, 'mutation { bye }', null, { req: { ip: "127.0.0.13" } });
+    expect(response6.errors![0].message).toContain('You have exceeded');
+  })
+})

@@ -1,7 +1,7 @@
 import { graphql } from 'graphql'
 const { gql, makeExecutableSchema } = require('apollo-server')
 import { IResolverValidationOptions } from 'graphql-tools'
-import { portaraSchemaDirective } from '../rateLimiter';
+import { portaraSchemaDirective, timeFrameMultiplier } from '../rateLimiter';
 const asyncRedis = require('async-redis');
 const client = asyncRedis.createClient();
 
@@ -10,8 +10,6 @@ const resolverValidationOptions: IResolverValidationOptions = {
   allowResolversNotInSchema: true
 };
 // -------------------------------------------------------------
-
-
 
 describe('Receives a response from our GraphQL Query', () => {
 
@@ -68,6 +66,20 @@ describe('Receives a response from our GraphQL Query', () => {
     expect(response.data!.hello).toBe("Hello World");
   })
 })
+
+
+describe('Rate Limiter accepts various timeframe values', () => {
+  it('returns an error when input value is not recognized', () => {
+    const timeframe = timeFrameMultiplier('years')
+    expect(timeframe).toBeInstanceOf(Error)
+  })
+
+  it('defaults to 1 second when value is an empty string', ()=> {
+    const timeframe = timeFrameMultiplier('')
+    expect(timeframe).toEqual(1000)
+  })
+})
+
 
 // Rate Limiter Redis Mock Testing -------------------------------------
 describe('Key : Value Pairs are stored correctly in Redis', () => {
@@ -126,6 +138,7 @@ describe('Key : Value Pairs are stored correctly in Redis', () => {
 });
 
 // ---------------------------------------------------------------------
+
 describe('rate limit test using @portara decorator', () => {
   beforeAll(async () => {
     if (client.status === "end") {

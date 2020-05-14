@@ -67,11 +67,14 @@ describe('Receives a response from our GraphQL Query', () => {
   })
 })
 
-describe('timeframe multiplier tests', () => {
+
+
+describe('Rate Limiter accepts various timeframe values', () => {
   it('returns an error when input value is not recognized', () => {
     const timeFrame = timeFrameMultiplier('years')
     expect(timeFrame).toBeInstanceOf(Error)
   })
+
 
   it('defaults to 1 second when value is an empty string or undefined', ()=> {
     const timeFrame = timeFrameMultiplier(undefined || '')
@@ -86,19 +89,79 @@ describe('timeframe multiplier tests', () => {
   it('converts days into milliseconds if the input is days', ()=> {
     const timeFrame = timeFrameMultiplier('days')
     expect(timeFrame).toEqual(86400000)
+
   })
 })
 
+
+// Rate Limiter Redis Mock Testing -------------------------------------
+describe('Key : Value Pairs are stored correctly in Redis', () => {
+  /*
+ const key = ip + '_' + scope;
+
+  let exists = await client.exists(key);
+
+  if (exists === 0) {
+    await client.psetex(key, expirationTimeVariable, 1);
+    return true;
+  } else {
+    await client.incr(key);
+    let value = await client.get(key);
+    value = Number(value);
+    return value > limit ? false : true;
+  }
+  */
+
+
+  it('Receieves the IP Address', async () => {
+    // test
+  });
+
+  it('Receives the scope (Apollo Field Directive or Apollo Object)', async () => {
+    // test
+  });
+
+  // it('Checks to see if the key exists', async () => {
+  //   const falsyResponse = client.get();
+  //   expect(falsyResponse).toBeFalsy();
+  //   client.set('truthyKey', 1);
+
+  // });
+
+  it('If key does not exists, sets the key value pair in Redis', async () => {
+
+  });
+
+  it('Expires the key', async () => {
+
+  });
+
+  it('If the key does exist, increments the value', async () => {
+
+  });
+
+  it('Gets the value for the correct key', async () => {
+
+  });
+
+  it('Compares the value to the limit correctly', async () => {
+
+  });
+
+});
+
+// ---------------------------------------------------------------------
+
 describe('rate limit test using @portara decorator', () => {
-  beforeAll(async () => {
-    if (client.status === "end") {
-      await client.connect()
-    }
-  })
-  //testing
-  afterAll(async () => {
-    await client.disconnect()
-  })
+  // beforeAll(async () => {
+  //   if (client.status === "end") {
+  //     await client.connect()
+  //   }
+  // })
+  // //testing
+  // afterAll(async () => {
+  //   await client.disconnect()
+  // })
 
   const typeDefs = gql`
   directive @portara(limit: Int!, per: ID!) on FIELD_DEFINITION | OBJECT 
@@ -136,28 +199,53 @@ describe('rate limit test using @portara decorator', () => {
     },
   })
 
-  it('Checks if decorated field resolvers return correct value', async () => {
+  it('directive is applied to field', () => {
+    expect(typeDefs.definitions[2].fields[0].name.value).toBe('hello')
+    expect(typeDefs.definitions[2].fields[0].directives[0].name.value).toBe('portara')
+  })
+
+  it('directive is applied to object', () => {
+    expect(typeDefs.definitions[2].name.value).toBe('Mutation')
+    expect(typeDefs.definitions[2].directives[0].name.value).toBe('portara')
+  })
+
+  it('field resolver should return original return value', async () => {
     const response1 = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
     expect(response1.data!.hello).toBe("Hello World");
   })
 
-  it('Checks if decorated field resolvers return error message after going over the limit', async () => {
-    const response2 = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
+  it('object resolvers return correct value', async () => {
+
+    const response1 = await graphql(schema, 'mutation { bye }', null, { req: { ip: "127.0.0.15" } })
+    expect(response1.data!.bye).toBe("Goodbye World");
+  })
+
+  it('field resolver should return error when exceeding limit', async () => {
+    await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
     const response3 = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
     expect(response3.errors![0].message).toContain('You have exceeded');
   })
 
-  it('Check if decorated object resolvers return correct value', async () => {
-    const response1 = await graphql(schema, 'mutation { bye }', null, { req: { ip: "127.0.0.13" } })
-    expect(response1.data!.bye).toBe("Goodbye World");
+  it('field resolver should work for different user IP', async () => {
+    const response1 = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.14" } });
+    expect(response1.data!.hello).toBe("Hello World");
   })
 
-  it('Checks if decorated object resolvers return error message after going over the limit', async () => {
-    const response2 = await graphql(schema, 'mutation { bye }', null, { req: { ip: "127.0.0.13" } });
-    const response3 = await graphql(schema, 'mutation { bye }', null, { req: { ip: "127.0.0.13" } });
-    const response4 = await graphql(schema, 'mutation { bye }', null, { req: { ip: "127.0.0.13" } });
-    const response5 = await graphql(schema, 'mutation { bye }', null, { req: { ip: "127.0.0.13" } });
-    const response6 = await graphql(schema, 'mutation { bye }', null, { req: { ip: "127.0.0.13" } });
-    expect(response6.errors![0].message).toContain('You have exceeded');
+  it('field resolver should return error message when exceeding limit with different IP', async () => {
+    for (let i = 0; i < 4; i++) {
+      await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.14" } });
+    }
+    const response3 = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.14" } });
+    expect(response3.errors![0].message).toContain('You have exceeded');
+  })
+
+
+  it('object resolver should return error message when exceeding limit', async () => {
+    for (let i = 0; i < 4; i++) {
+      await graphql(schema, 'mutation { bye }', null, { req: { ip: "127.0.0.10" } });
+    }
+    const didWeLogError = await graphql(schema, 'mutation { bye }', null, { req: { ip: "127.0.0.10" } });
+
+    expect(didWeLogError.errors![0].message).toContain('You have exceeded');
   })
 })

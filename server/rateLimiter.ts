@@ -31,10 +31,31 @@ export const timeFrameMultiplier = (timeFrame) => {
 // Redis Rate Limiter -------------------------------------------
 export const rateLimiter = async (limit: number, per: string, ip: string, scope: string) => {
 
+  // const timeFrameMultiplier = (timeFrame) => {
+  //   if (timeFrame === 'milliseconds' || timeFrame === 'millisecond' || timeFrame === 'mil' || timeFrame === 'mils' || timeFrame === 'ms') {
+  //     return 1
+  //   } else if (timeFrame === 'seconds' || timeFrame === 'second' || timeFrame === 'sec' || timeFrame === 'secs' || timeFrame === 's') {
+  //     return 1000;
+  //   } else if (timeFrame === 'minutes' || timeFrame === 'minute' || timeFrame === 'min' || timeFrame === 'mins' || timeFrame === 'm') {
+  //     return 1000 * 60;
+  //   } else if (timeFrame === 'hours' || timeFrame === 'hour' || timeFrame === 'h') {
+  //     return 1000 * 60 * 60;
+  //   } else if (timeFrame === 'days' || timeFrame === 'day' || timeFrame === 'd') {
+  //     return 1000 * 60 * 60 * 24;
+  //   } else if (timeFrame === 'weeks' || timeFrame === 'week' || timeFrame === 'w') {
+  //     return 1000 * 60 * 60 * 24 * 7;
+  //   } else if (timeFrame === '' || timeFrame === undefined) {
+  //     return 1000;
+  //   } else {
+  //     return new Error('Not a valid measurement of time!');
+  //   }
+  // }
+
   // Per Functionality ---------------------------
 
   const perNum = parseFloat(<any>per.match(/\d+/g)?.toString())
   const perWord = per.match(/[a-zA-Z]+/g)?.toString().toLowerCase();
+
 
   // get final result of expirationTimeVariable
   let expirationTimeVariable = (<number>timeFrameMultiplier(perWord) * perNum);

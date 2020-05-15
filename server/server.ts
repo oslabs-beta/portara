@@ -9,7 +9,7 @@ const typeDefs = gql`
     test: String!
   }
   type Mutation  @portara(limit: 8, per: 10){
-    hello: String! @portara(limit: 2, per: "10")
+    hello: String! #@portara(limit: 2, per: "10")
     bye: String! #@portara(limit: 2)
   }
 `;

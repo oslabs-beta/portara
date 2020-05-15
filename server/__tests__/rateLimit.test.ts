@@ -95,32 +95,38 @@ describe('Rate Limiter accepts various timeframe values', () => {
 
 
 // Rate Limiter Redis Mock Testing -------------------------------------
-describe('Key : Value Pairs are stored correctly in Redis', () => {
-  /*
- const key = ip + '_' + scope;
+describe('Redis connection and functionality are performing', () => {
 
-  let exists = await client.exists(key);
-
-  if (exists === 0) {
-    await client.psetex(key, expirationTimeVariable, 1);
-    return true;
-  } else {
-    await client.incr(key);
-    let value = await client.get(key);
-    value = Number(value);
-    return value > limit ? false : true;
-  }
-  */
-
-
-  it('Receieves the IP Address', async () => {
-    // test
+  beforeAll(async () => {
+    if (client.status === "end") {
+      await client.connect()
+    }
   });
 
-  it('Receives the scope (Apollo Field Directive or Apollo Object)', async () => {
-    // test
+  afterAll(async () => {
+    await client.disconnect()
   });
 
+  const IP = "123.4.5.67";
+
+  // it('Receieves the IP Address', async () => {
+  //   const response = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
+  //   console.log(context)
+  // });
+
+  // it('Receives the scope (Apollo Field Directive or Apollo Object)', async () => {
+  //   // test
+  // });
+
+  it('Checks to see if the key exists in Redis', async () => {
+    const key = IP + "_" + "Exists";
+    await client.psetex(key, 10, 1);
+    const redisGetValue = await client.exists(key);
+    expect(redisGetValue).toBe(1); // Redis replies "1" if true
+
+    const redisNotExistentKey = await client.exists("Nonexistent_Key");
+    expect(redisNotExistentKey).toBe(0); // Redis replies "0" if false
+  });
   // it('Checks to see if the key exists', async () => {
   //   const falsyResponse = client.get();
   //   expect(falsyResponse).toBeFalsy();
@@ -129,24 +135,40 @@ describe('Key : Value Pairs are stored correctly in Redis', () => {
   // });
 
   it('If key does not exists, sets the key value pair in Redis', async () => {
-
+    const key = IP + "_" + "Nonexistent"
+    const redisNotExistentKey = await client.exists("Nonexistent_Key");
+    expect(redisNotExistentKey).toBe(0);
+    if (redisNotExistentKey === 0) {
+      await client.psetex(key, 10, 1)
+    };
+    const value = await client.get(key);
+    await expect(value).toBe("1");
   });
 
   it('Expires the key', async () => {
+    const key = IP + "_" + "Expires";
+    // Set key: value with expiration
+    await client.psetex(key, 100, 1);
+    const existingKey = await client.exists(key)
+    await expect(existingKey).toBe(1);
+
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    await delay(500);
+    const expiredKey = await client.exists(key);
+    await expect(expiredKey).toBe(0);
 
   });
 
   it('If the key does exist, increments the value', async () => {
-
+    const key = IP + "_" + "Increment";
+    await client.psetex(key, 20, 1);
+    await client.incr(key);
+    const incrValue = await client.get(key);
+    await expect(incrValue).toBe("2");
   });
 
-  it('Gets the value for the correct key', async () => {
-
-  });
-
-  it('Compares the value to the limit correctly', async () => {
-
-  });
 
 });
 
@@ -169,8 +191,8 @@ describe('rate limit test using @portara decorator', () => {
   type Query {
     test: String!
   }
-  type Mutation @portara(limit: 4, per: 10) {
-    hello: String! @portara(limit: 2, per: "10")
+  type Mutation @portara(limit: 4, per: 4) {
+    hello: String! @portara(limit: 2, per: "4")
     bye: String! 
   }
 `;

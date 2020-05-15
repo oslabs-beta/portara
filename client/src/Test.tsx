@@ -16,17 +16,18 @@ const Test: React.FC = (): JSX.Element => {
         onSubmit={async (e) =>{
           e.preventDefault()
           document.getElementById('resultsList')!.innerHTML = ''
-          for (let i = 0; i < inputValue; i++) {          
+          for (let i = 0; i < inputValue; i++) {    
+            const time = Date.now()  
             await addTest() 
-            .then(res => {            
+            .then(res => {          
               const resp = document.createElement('LI');
-              resp.innerText = `Request ${i+1}: ${res.data.hello}`
+              resp.innerText = `${i+1} ${time} ${res.data.hello}`
               resp.id = i.toString()
               document.getElementById("resultsList")?.appendChild(resp)
             })
             .catch(err => {
               const resp = document.createElement('LI');
-              resp.innerText = err;
+              resp.innerText = `${i+1} ${time} ${err}`
               resp.id = i.toString()
               document.getElementById("resultsList")?.appendChild(resp)
             })
@@ -45,7 +46,7 @@ const Test: React.FC = (): JSX.Element => {
             }}
           />
         </div>
-        <button type='submit'>TEST</button>
+        <button type='submit'>Send</button>
       </form>
       <ul id="resultsList">
       </ul>

@@ -21,7 +21,6 @@ export default class portaraSchemaDirective extends SchemaDirectiveVisitor {
 
   visitFieldDefinition(field: GraphQLField<any, any>, details) {
     const { limit, per, throttle } = this.args;
-    console.log('field,', this.args)
     const { resolve = defaultFieldResolver } = field;
     field.resolve = async (...originalArgs) => {
       const [object, args, context, info] = originalArgs;
@@ -46,7 +45,6 @@ export default class portaraSchemaDirective extends SchemaDirectiveVisitor {
 
   visitObject(type: GraphQLObjectType) {
     const { limit, per, throttle, throttleBy } = this.args;
-    console.log('object', this.args)
     const fields = type.getFields();
     Object.values(fields).forEach((field) => {
       const { resolve = defaultFieldResolver } = field;

@@ -176,24 +176,15 @@ describe('Redis connection and functionality are performing', () => {
 // ---------------------------------------------------------------------
 
 describe('rate limit test using @portara decorator', () => {
-  // beforeAll(async () => {
-  //   if (client.status === "end") {
-  //     await client.connect()
-  //   }
-  // })
-  // //testing
-  // afterAll(async () => {
-  //   await client.disconnect()
-  // })
 
   const typeDefs = gql`
-  directive @portara(limit: Int!, per: ID!) on FIELD_DEFINITION | OBJECT 
+  directive @portara(limit: Int!, per: ID!, throttle: ID!) on FIELD_DEFINITION | OBJECT 
 
   type Query {
     test: String!
   }
-  type Mutation @portara(limit: 4, per: 4) {
-    hello: String! @portara(limit: 2, per: "4")
+  type Mutation @portara(limit: 4, per: 4, throttle: 0) {
+    hello: String! @portara(limit: 2, per: "4", throttle: 0)
     bye: String! 
   }
 `;
@@ -234,6 +225,7 @@ describe('rate limit test using @portara decorator', () => {
 
   it('field resolver should return original return value', async () => {
     const response1 = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
+    console.log(response1)
     expect(response1.data!.hello).toBe("Hello World");
   })
 

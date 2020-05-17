@@ -1,7 +1,8 @@
 import { graphql } from 'graphql'
 const { gql, makeExecutableSchema } = require('apollo-server')
 import { IResolverValidationOptions } from 'graphql-tools'
-import { portaraSchemaDirective, timeFrameMultiplier } from '../rateLimiter';
+import timeFrameMultiplier from '../portara/timeFrameMultiplier';
+import portaraSchemaDirective from '../portara/portaraSchemaDirective'
 const asyncRedis = require('async-redis');
 const client = asyncRedis.createClient();
 
@@ -76,17 +77,17 @@ describe('Rate Limiter accepts various timeframe values', () => {
   })
 
 
-  it('defaults to 1 second when value is an empty string or undefined', ()=> {
+  it('defaults to 1 second when value is an empty string or undefined', () => {
     const timeFrame = timeFrameMultiplier(undefined || '')
     expect(timeFrame).toEqual(1000)
   })
 
-  it('converts hours into milliseconds if the input is hours', ()=> {
+  it('converts hours into milliseconds if the input is hours', () => {
     const timeFrame = timeFrameMultiplier('hours')
     expect(timeFrame).toEqual(3600000)
   })
 
-  it('converts days into milliseconds if the input is days', ()=> {
+  it('converts days into milliseconds if the input is days', () => {
     const timeFrame = timeFrameMultiplier('days')
     expect(timeFrame).toEqual(86400000)
 

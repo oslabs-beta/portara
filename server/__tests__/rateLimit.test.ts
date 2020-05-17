@@ -1,7 +1,8 @@
 import { graphql } from 'graphql'
 const { gql, makeExecutableSchema } = require('apollo-server')
 import { IResolverValidationOptions } from 'graphql-tools'
-import { portaraSchemaDirective, timeFrameMultiplier } from '../rateLimiter';
+import timeFrameMultiplier from '../portara/timeFrameMultiplier';
+import portaraSchemaDirective from '../portara/portaraSchemaDirective'
 const asyncRedis = require('async-redis');
 const client = asyncRedis.createClient();
 
@@ -76,17 +77,17 @@ describe('Rate Limiter accepts various timeframe values', () => {
   })
 
 
-  it('defaults to 1 second when value is an empty string or undefined', ()=> {
+  it('defaults to 1 second when value is an empty string or undefined', () => {
     const timeFrame = timeFrameMultiplier(undefined || '')
     expect(timeFrame).toEqual(1000)
   })
 
-  it('converts hours into milliseconds if the input is hours', ()=> {
+  it('converts hours into milliseconds if the input is hours', () => {
     const timeFrame = timeFrameMultiplier('hours')
     expect(timeFrame).toEqual(3600000)
   })
 
-  it('converts days into milliseconds if the input is days', ()=> {
+  it('converts days into milliseconds if the input is days', () => {
     const timeFrame = timeFrameMultiplier('days')
     expect(timeFrame).toEqual(86400000)
 
@@ -175,24 +176,15 @@ describe('Redis connection and functionality are performing', () => {
 // ---------------------------------------------------------------------
 
 describe('rate limit test using @portara decorator', () => {
-  // beforeAll(async () => {
-  //   if (client.status === "end") {
-  //     await client.connect()
-  //   }
-  // })
-  // //testing
-  // afterAll(async () => {
-  //   await client.disconnect()
-  // })
 
   const typeDefs = gql`
-  directive @portara(limit: Int!, per: ID!) on FIELD_DEFINITION | OBJECT 
+  directive @portara(limit: Int!, per: ID!, throttle: ID!) on FIELD_DEFINITION | OBJECT 
 
   type Query {
     test: String!
   }
-  type Mutation @portara(limit: 4, per: 4) {
-    hello: String! @portara(limit: 2, per: "4")
+  type Mutation @portara(limit: 4, per: 4, throttle: 0) {
+    hello: String! @portara(limit: 2, per: "4", throttle: 0)
     bye: String! 
   }
 `;
@@ -233,6 +225,7 @@ describe('rate limit test using @portara decorator', () => {
 
   it('field resolver should return original return value', async () => {
     const response1 = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
+    console.log(response1)
     expect(response1.data!.hello).toBe("Hello World");
   })
 

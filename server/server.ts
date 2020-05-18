@@ -8,8 +8,8 @@ const typeDefs = gql`
   type Query {
     test: String!
   }
-  type Mutation  @portara(limit: 8, per: 10, throttle: 0){
-    hello: String! @portara(limit: 2, per: "10 seconds", throttle: 0)
+  type Mutation  @portara(limit: 4, per: 10, throttle: "500ms"){
+    hello: String! @portara(limit: 2, per: "10 seconds", throttle: "500 ms")
     bye: String! 
   }
 `;

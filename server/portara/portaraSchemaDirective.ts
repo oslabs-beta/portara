@@ -44,7 +44,7 @@ export default class portaraSchemaDirective extends SchemaDirectiveVisitor {
   }
 
   visitObject(type: GraphQLObjectType) {
-    const { limit, per, throttle, throttleBy } = this.args;
+    const { limit, per, throttle } = this.args;
     const fields = type.getFields();
     Object.values(fields).forEach((field) => {
       const { resolve = defaultFieldResolver } = field;
@@ -52,9 +52,17 @@ export default class portaraSchemaDirective extends SchemaDirectiveVisitor {
         field.resolve = async (...originalArgs) => {
           const [object, args, context, info] = originalArgs;
           const underLimit = await rateLimiter(limit, per, context.req.ip, type.toString());
-          if (underLimit) {
+
+          const perNum = parseFloat(<any>throttle.match(/\d+/g)?.toString())
+          const perWord = throttle.match(/[a-zA-Z]+/g)?.toString().toLowerCase();
+          const throttled = <any>timeFrameMultiplier(perWord) * perNum
+
+          if (!underLimit && throttled) {
+            await throttler(throttled)
             return resolve(...originalArgs);
-          } else {
+          } else if (underLimit) {
+            return resolve(...originalArgs);
+          } else if (!underLimit) {
             const error = await this.generateErrorMessage(limit, per, type.toString(), context.req.ip)
             return new Error(error)
           };

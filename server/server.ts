@@ -1,17 +1,16 @@
 const { ApolloServer, gql } = require('apollo-server');
-import { portaraSchemaDirective } from './rateLimiter';
-import { makeExecutableSchema } from 'graphql-tools'
+import portaraSchemaDirective from './portara/portaraSchemaDirective';
 
 // typeDefs
 const typeDefs = gql`
-  directive @portara(limit: Int!, per: ID!) on FIELD_DEFINITION | OBJECT 
+  directive @portara(limit: Int!, per: ID!, throttle: ID!) on FIELD_DEFINITION | OBJECT 
 
   type Query {
     test: String!
   }
-  type Mutation  @portara(limit: 8, per: 10){
-    hello: String! @portara(limit: 2, per: "10")
-    bye: String! #@portara(limit: 2)
+  type Mutation  @portara(limit: 4, per: 10, throttle: "500ms"){
+    hello: String! @portara(limit: 2, per: "10 seconds", throttle: "500 ms")
+    bye: String! 
   }
 `;
 

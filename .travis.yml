@@ -4,6 +4,9 @@ node_js:
  - "stable"
 
 #cache: npm - caches all npm dependencies for each build
+cache: 
+  directories: 
+    - server/node_modules
 
 install:
   - npm install

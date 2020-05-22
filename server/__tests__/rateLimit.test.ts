@@ -13,7 +13,6 @@ const resolverValidationOptions: IResolverValidationOptions = {
 // -------------------------------------------------------------
 
 describe('Receives a response from our GraphQL Query', () => {
-
   const resolvers = {
     Query: {
       test: (parent, args, context, info) => {
@@ -30,8 +29,10 @@ describe('Receives a response from our GraphQL Query', () => {
     },
   };
 
-  it('Completes a query without directive', async () => {
+  it('Completes a query without directive', async  () => {
     const typeDefs = gql`
+      directive @portara(limit: Int!, per: ID!) on FIELD_DEFINITION
+
       type Query {
         test: String!
       }
@@ -41,6 +42,9 @@ describe('Receives a response from our GraphQL Query', () => {
       typeDefs,
       resolvers,
       resolverValidationOptions,
+      schemaDirectives: {
+        portara: portaraSchemaDirective
+      }
     })
 
     const response = await graphql(schema, 'query { test }');

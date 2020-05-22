@@ -2,9 +2,7 @@ import { gql } from 'apollo-boost';
 
 const getAllQuery = gql`
   {
-    tests {
-      name
-    }
+    test
   }
 `;
 
@@ -14,4 +12,10 @@ const addTestMutation = gql`
   }
 `;
 
-export { getAllQuery, addTestMutation };
+const testSubscribe = gql`
+  subscription {
+    testSub
+  }
+`;
+
+export { getAllQuery, addTestMutation, testSubscribe };

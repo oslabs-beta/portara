@@ -1,16 +1,18 @@
 import React, { useState, ChangeEvent } from 'react';
-import { useMutation, useQuery} from '@apollo/react-hooks'
-import { getAllQuery, addTestMutation } from './queries'
+import { useMutation, useQuery, useSubscription } from '@apollo/react-hooks'
+import { getAllQuery, addTestMutation, testSubscribe } from './queries'
+
 
 const Test: React.FC = (): JSX.Element => {
-  const [addTest, { data }] = useMutation(addTestMutation)
-  const [inputValue, setInputValue] = useState(0);
-  const [response, setResponse] = useState(['test'])
-  
+  // const { loading: queryLoading, error, data: queryData } = useQuery(getAllQuery);
+  const { data: subData, loading: subLoading } = useSubscription(testSubscribe);
+  // const [inputValue, setInputValue] = useState(0);
+  // const [response, setResponse] = useState(['test'])
+  console.log(subData, subLoading)
 
   return (
     <div className ="testContainer">
-      <form 
+      {/* <form 
         className ="formContainer" 
         id="testForm"
         onSubmit={async (e) =>{
@@ -49,7 +51,7 @@ const Test: React.FC = (): JSX.Element => {
         <button type='submit'>Send</button>
       </form>
       <ul id="resultsList">
-      </ul>
+      </ul> */}
     </div>
   )
 };

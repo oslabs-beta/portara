@@ -5,35 +5,65 @@ import { IUserSettings } from './interfaces';
 
 export let userSettings: IUserSettings = {};
 //localhost for wsUrl needs to be only ws:// not wss:// <--= this one is for deployed websites
-const Subclient = new GraphQLClient({
-  // url: 'http://portara-web.herokuapp.com/graphql',
-  // wsUrl: 'wss://portara-web.herokuapp.com/graphql',
-  url: 'http://localhost:4000/graphql',
-  wsUrl: 'ws://localhost:4000/graphql',
-});
 
 
-const subscr = gql`
-  subscription($userID: String!) {
-    portaraSettings(userID: $userID) {
-      userID
-      limit
-      per
-      throttle
+
+/* 
+SAMPLE USER - MONGO
+{
+  userID: steveID,
+  portara: [
+    {
+      name: hello,
+      limit: 10,
+      per: 10,
+      throttle: 1
+    },
+    {
+      name: Mutation,
+      limit: 10,
+      per: 10,
+      throttle: 1
     }
+  ]
+  
 }
-`
 
-/*
-  - Currently set up to send a userID when subscribing. This works and the ID is logged on website server.
-  - Next step: maybe have a default user token like "default", and then from the website we send back the token always, BUT if the token is !== 'default', the functionality on the tool will change
 */
 
-Subclient.runSubscription(subscr, { userID }).subscribe({
-  next: (res) => {
-    console.log('LINE 51', res)
-    userSettings = res.data.portaraSettings;
-  },
-  error: (error) => console.error('error', error),
-  complete: () => console.log('done'),
-});
+
+/*
+- Wrap all subscriber functionality in a way that offline use won't trigger a sub. IE if the user doesn't enter a name, no sub gets triggered
+*/
+if (userID) {
+
+
+  // Creates a set of URLs to be used for subscriptions
+  const subClient = new GraphQLClient({
+    // url: 'http://portara-web.herokuapp.com/graphql',
+    // wsUrl: 'wss://portara-web.herokuapp.com/graphql',
+    url: 'http://localhost:4000/graphql',
+    wsUrl: 'ws://localhost:4000/graphql',
+  });
+
+
+
+  // Query for subscription where userID is grabbed from server.ts (user enters manually)
+  const subscr = gql`
+    subscription($userID: String!) {
+      portaraSettings(userID: $userID) {
+        name
+        limit
+        per
+        throttle
+      }
+  }
+  `;
+
+  //  Subscription gets triggered with userID as variable, and userSettings get updated with each response from website
+  subClient.runSubscription(subscr, { userID }).subscribe({
+    next: (res) => userSettings = res.data.portaraSettings,
+    error: (error) => console.error('error', error),
+    complete: () => console.log('done'),
+  });
+}

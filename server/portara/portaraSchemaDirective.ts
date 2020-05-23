@@ -7,6 +7,7 @@ import throttler from './throttler';
 import timeFrameMultiplier from './timeFrameMultiplier';
 import { userSettings } from './subscriber'
 
+
 export class portaraSchemaDirective extends SchemaDirectiveVisitor {
   // trigger PubSub here so that it triggers on server start only
 

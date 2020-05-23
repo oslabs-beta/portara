@@ -12,7 +12,7 @@ export let userSettings: IUserSetting = {
   per: "10",
   throttle: "0",
 }
-
+//localhost for wsUrl needs to be only ws:// not wss:// <--= this one is for deployed websites
 const Subclient = new GraphQLClient({
   // url: 'http://portara-web.herokuapp.com/graphql',
   // wsUrl: 'wss://portara-web.herokuapp.com/graphql',
@@ -42,6 +42,10 @@ const subscr = gql`
 //   }
 // `
 
+/*
+  - Currently set up to send a userID when subscribing. This works and the ID is logged on website server.
+  - Next step: 
+*/
 
 
 Subclient.runSubscription(subscr).subscribe({

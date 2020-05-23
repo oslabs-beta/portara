@@ -5,6 +5,7 @@ const client = asyncRedis.createClient();
 import rateLimiter from './rateLimiter';
 import throttler from './throttler';
 import timeFrameMultiplier from './timeFrameMultiplier';
+import {x} from '../server'
 
 export default class portaraSchemaDirective extends SchemaDirectiveVisitor {
   // trigger PubSub here so that it triggers on server start only
@@ -16,13 +17,12 @@ export default class portaraSchemaDirective extends SchemaDirectiveVisitor {
   }
 
   visitFieldDefinition(field: GraphQLField<any, any>, details) {
-    const { limit, per, throttle } = this.args;
+    let { limit, per, throttle } = this.args;
     const { resolve = defaultFieldResolver } = field;
     field.resolve = async (...originalArgs) => {
+      limit = x;
       const [object, args, context, info] = originalArgs;
-      const error = await this.generateErrorMessage(limit, per, info.fieldName, context.req.ip);
       const underLimit = await rateLimiter(limit, per, context.req.ip, info.fieldName);
-
       const perNum = parseFloat(<any>throttle.match(/\d+/g)?.toString());
       const perWord = throttle
         .match(/[a-zA-Z]+/g)

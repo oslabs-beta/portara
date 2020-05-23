@@ -2,6 +2,9 @@ const { ApolloServer, gql } = require('apollo-server');
 import portaraSchemaDirective from './portara/portaraSchemaDirective';
 import { GraphQLClient } from 'kikstart-graphql-client';
 
+export let x:any = 2;
+
+
 // typeDefs
 const typeDefs = gql`
   directive @portara(limit: Int!, per: ID!, throttle: ID!) on FIELD_DEFINITION | OBJECT
@@ -9,8 +12,8 @@ const typeDefs = gql`
   type Query {
     test: String!
   }
-  type Mutation @portara(limit: 4, per: 10, throttle: "500ms") {
-    hello: String! @portara(limit: 2, per: "10 seconds", throttle: "500 ms")
+  type Mutation @portara(limit: 10, per: 10, throttle: "500ms") {
+    hello: String! @portara(limit: 2, per: "20 seconds", throttle: "0")
     bye: String!
   }
 `;
@@ -24,6 +27,7 @@ const resolvers = {
   },
   Mutation: {
     hello: (parent, args, context, info) => {
+      console.log(x)
       return 'Request completed and returned';
     },
     bye: (parent, args, context, info) => {
@@ -38,7 +42,14 @@ const Subclient = new GraphQLClient({
 });
 
 Subclient.runSubscription(`subscription { testSub }`).subscribe({
-  next: (res) => console.log('res', res),
+  next: (res) => {
+    console.log('res', res)
+    x = res.data.testSub;
+    if (x === 'sub returned') {
+      x = 5
+    }
+    console.log(x)
+  },
   error: (error) => console.error('error',error),
   complete: () => console.log('done'),
 });

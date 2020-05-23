@@ -57,6 +57,7 @@ export class portaraSchemaDirective extends SchemaDirectiveVisitor {
       const { resolve = defaultFieldResolver } = field;
       if (!field.astNode!.directives!.some((directive) => directive.name.value === 'portara')) {
         field.resolve = async (...originalArgs) => {
+
           if (userSettings.limit && userSettings.per && userSettings.throttle) {
             limit = userSettings.limit;
             per = userSettings.per;

@@ -29,7 +29,7 @@ describe('Receives a response from our GraphQL Query', () => {
     },
   };
 
-  it('Completes a query without directive', async  () => {
+  it('Completes a query without directive', async () => {
     const typeDefs = gql`
       directive @portara(limit: Int!, per: ID!) on FIELD_DEFINITION
 
@@ -229,7 +229,7 @@ describe('test to see if rate limiter returns the correct value or the expected 
 
   it('field resolver should return original return value', async () => {
     const response1 = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
-
+    console.log(response1)
     expect(response1.data!.hello).toBe("Hello World");
   })
 

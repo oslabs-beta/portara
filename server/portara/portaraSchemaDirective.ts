@@ -5,7 +5,7 @@ const client = asyncRedis.createClient();
 import rateLimiter from './rateLimiter';
 import throttler from './throttler';
 import timeFrameMultiplier from './timeFrameMultiplier';
-import {x} from '../server'
+import { userSettings } from './subscriber'
 
 export default class portaraSchemaDirective extends SchemaDirectiveVisitor {
   // trigger PubSub here so that it triggers on server start only
@@ -20,7 +20,9 @@ export default class portaraSchemaDirective extends SchemaDirectiveVisitor {
     let { limit, per, throttle } = this.args;
     const { resolve = defaultFieldResolver } = field;
     field.resolve = async (...originalArgs) => {
-      limit = x;
+      // limit = userSettings.limit;
+      // per = userSettings.per;
+      // throttle = userSettings.throttle;
       const [object, args, context, info] = originalArgs;
       const underLimit = await rateLimiter(limit, per, context.req.ip, info.fieldName);
       const perNum = parseFloat(<any>throttle.match(/\d+/g)?.toString());

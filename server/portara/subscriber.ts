@@ -4,33 +4,6 @@ import { userID } from '../server'
 import { IUserSettings } from './interfaces';
 
 export let userSettings: IUserSettings = {};
-//localhost for wsUrl needs to be only ws:// not wss:// <--= this one is for deployed websites
-
-
-
-/* 
-SAMPLE USER - MONGO
-{
-  userID: steveID,
-  portara: [
-    {
-      name: hello,
-      limit: 10,
-      per: 10,
-      throttle: 1
-    },
-    {
-      name: Mutation,
-      limit: 10,
-      per: 10,
-      throttle: 1
-    }
-  ]
-  
-}
-
-*/
-
 
 /*
 - Wrap all subscriber functionality in a way that offline use won't trigger a sub. IE if the user doesn't enter a name, no sub gets triggered
@@ -39,6 +12,7 @@ if (userID) {
 
 
   // Creates a set of URLs to be used for subscriptions
+  //localhost for wsUrl needs to be only ws:// not wss:// <--= this one is for deployed websites
   const subClient = new GraphQLClient({
     // url: 'http://portara-web.herokuapp.com/graphql',
     // wsUrl: 'wss://portara-web.herokuapp.com/graphql',

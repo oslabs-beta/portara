@@ -20,9 +20,10 @@ export default class portaraSchemaDirective extends SchemaDirectiveVisitor {
     let { limit, per, throttle } = this.args;
     const { resolve = defaultFieldResolver } = field;
     field.resolve = async (...originalArgs) => {
-      // limit = userSettings.limit;
-      // per = userSettings.per;
-      // throttle = userSettings.throttle;
+      limit = userSettings.limit;
+      per = userSettings.per;
+      throttle = userSettings.throttle;
+      console.log(limit, per, throttle)
       const [object, args, context, info] = originalArgs;
       const underLimit = await rateLimiter(limit, per, context.req.ip, info.fieldName);
       const perNum = parseFloat(<any>throttle.match(/\d+/g)?.toString());

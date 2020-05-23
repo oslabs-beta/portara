@@ -1,7 +1,6 @@
 const { ApolloServer, gql } = require('apollo-server');
-import portaraSchemaDirective from './portara/portaraSchemaDirective';
-
-
+export let userID = 'cary'
+import { portaraSchemaDirective } from './portara/portaraSchemaDirective';
 
 
 
@@ -35,23 +34,6 @@ const resolvers = {
   },
 };
 
-// const Subclient = new GraphQLClient({
-//   url: 'http://portara-web.herokuapp.com/graphql',
-//   wsUrl: 'wss://portara-web.herokuapp.com/graphql',
-// });
-
-// Subclient.runSubscription(`subscription { testSub }`).subscribe({
-//   next: (res) => {
-//     console.log('res', res)
-//     x = res.data.testSub;
-//     if (x === 'sub returned') {
-//       x = 5
-//     }
-//     console.log(x)
-//   },
-//   error: (error) => console.error('error',error),
-//   complete: () => console.log('done'),
-// });
 
 const server = new ApolloServer({
   typeDefs,

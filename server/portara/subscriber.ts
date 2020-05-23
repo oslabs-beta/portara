@@ -1,17 +1,9 @@
 import { GraphQLClient } from 'kikstart-graphql-client';
 import { gql } from 'apollo-server-express';
+import { userID } from '../server'
+import { IUserSettings } from './interfaces';
 
-interface IUserSetting {
-  limit: any
-  per: any
-  throttle: any
-}
-
-export let userSettings: IUserSetting = {
-  limit: 2,
-  per: "10",
-  throttle: "0",
-}
+export let userSettings: IUserSettings = {};
 //localhost for wsUrl needs to be only ws:// not wss:// <--= this one is for deployed websites
 const Subclient = new GraphQLClient({
   // url: 'http://portara-web.herokuapp.com/graphql',
@@ -19,11 +11,11 @@ const Subclient = new GraphQLClient({
   url: 'http://localhost:4000/graphql',
   wsUrl: 'ws://localhost:4000/graphql',
 });
-// const myID = 'asdfasf'
+
 
 const subscr = gql`
-  subscription {
-    portaraSettings(userID: "hello") {
+  subscription($userID: String!) {
+    portaraSettings(userID: $userID) {
       userID
       limit
       per
@@ -31,28 +23,16 @@ const subscr = gql`
     }
 }
 `
-// const subscr = gql`
-//   subscription portaraSettings($userID: userID!) {
-//     portaraSettings(userID: $userID) {
-//       userID
-//       limit
-//       per
-//       throttle
-//     }
-//   }
-// `
 
 /*
   - Currently set up to send a userID when subscribing. This works and the ID is logged on website server.
-  - Next step: 
+  - Next step: maybe have a default user token like "default", and then from the website we send back the token always, BUT if the token is !== 'default', the functionality on the tool will change
 */
 
-
-Subclient.runSubscription(subscr).subscribe({
+Subclient.runSubscription(subscr, { userID }).subscribe({
   next: (res) => {
     console.log('LINE 51', res)
     userSettings = res.data.portaraSettings;
-    // console.log(userSettings)
   },
   error: (error) => console.error('error', error),
   complete: () => console.log('done'),

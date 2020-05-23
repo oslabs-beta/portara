@@ -50,12 +50,18 @@ export class portaraSchemaDirective extends SchemaDirectiveVisitor {
   }
 
   visitObject(type: GraphQLObjectType) {
-    const { limit, per, throttle } = this.args;
+    let { limit, per, throttle } = this.args;
+
     const fields = type.getFields();
     Object.values(fields).forEach((field) => {
       const { resolve = defaultFieldResolver } = field;
       if (!field.astNode!.directives!.some((directive) => directive.name.value === 'portara')) {
         field.resolve = async (...originalArgs) => {
+          if (userSettings.limit && userSettings.per && userSettings.throttle) {
+            limit = userSettings.limit;
+            per = userSettings.per;
+            throttle = userSettings.throttle;
+          }
           const [object, args, context, info] = originalArgs;
           const underLimit = await rateLimiter(limit, per, context.req.ip, type.toString());
 

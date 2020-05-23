@@ -36,7 +36,10 @@ if (userID) {
 
   //  Subscription gets triggered with userID as variable, and userSettings get updated with each response from website
   subClient.runSubscription(subscr, { userID }).subscribe({
-    next: (res) => userSettings = res.data.portaraSettings,
+    next: (res) => {
+      userSettings = res.data.portaraSettings
+      console.log(userSettings)
+    },
     error: (error) => console.error('error', error),
     complete: () => console.log('done'),
   });

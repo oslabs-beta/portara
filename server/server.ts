@@ -1,5 +1,5 @@
 const { ApolloServer, gql } = require('apollo-server');
-export let userID = 'steve'
+export let userID = '5ec95d5511a137008db8c4df'
 import { portaraSchemaDirective } from './portara/portaraSchemaDirective';
 
 
@@ -12,7 +12,7 @@ const typeDefs = gql`
   type Query {
     test: String!
   }
-  type Mutation @portara(limit: 10, per: 10, throttle: "500ms") {
+  type Mutation @portara(limit: 4, per: 10, throttle: "500ms") {
     hello: String! @portara(limit: 2, per: "20 seconds", throttle: "0")
     bye: String!
   }

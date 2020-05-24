@@ -11,10 +11,9 @@ const rateLimiter = async (limit: number, per: string, ip: string, scope: string
 
   // get final result of expirationTimeVariable
   let expirationTimeVariable = (<number>timeFrameMultiplier(perWord) * perNum);
+
   // ---------------------------------------------
-
   const key = ip + '_' + scope;
-
   let exists = await client.exists(key);
 
   if (exists === 0) {

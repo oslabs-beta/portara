@@ -9,7 +9,6 @@ import { userSettings } from './subscriber'
 
 
 export class portaraSchemaDirective extends SchemaDirectiveVisitor {
-  // trigger PubSub here so that it triggers on server start only
 
   async generateErrorMessage(limit, per, name, ip) {
     const timeLeft = await client.ttl(`${ip}_${name}`);
@@ -51,7 +50,6 @@ export class portaraSchemaDirective extends SchemaDirectiveVisitor {
 
   visitObject(type: GraphQLObjectType) {
     let { limit, per, throttle } = this.args;
-
     const fields = type.getFields();
     Object.values(fields).forEach((field) => {
       const { resolve = defaultFieldResolver } = field;

@@ -1,5 +1,5 @@
 const { ApolloServer, gql } = require('apollo-server');
-export let userID = '5ec95d5511a137008db8c4df'
+export let userID = '5ec9aa3a9057a222f161be33'
 import { portaraSchemaDirective } from './portara/portaraSchemaDirective';
 
 

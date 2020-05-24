@@ -1,20 +1,20 @@
 const { ApolloServer, gql } = require('apollo-server');
+export let userID = '5ec9aa3a9057a222f161be33'
 import portaraSchemaDirective from './portara/portaraSchemaDirective';
-
 
 
 
 
 // typeDefs
 const typeDefs = gql`
-  directive @portara(limit: Int!, per: ID!, throttle: ID!) on FIELD_DEFINITION | OBJECT
+  directive @portara(limit: Int! = 10, per: ID! = 10, throttle: ID! = 0) on FIELD_DEFINITION | OBJECT
 
   type Query {
     test: String!
   }
-  type Mutation @portara(limit: 10, per: 10, throttle: "500ms") {
+  type Mutation @portara(limit: 4, per: 10, throttle: "500ms") {
     hello: String! @portara(limit: 2, per: "20 seconds", throttle: "0")
-    bye: String!
+    bye: String! @portara(limit: 2, per: "20 seconds", throttle: "0")
   }
 `;
 
@@ -35,23 +35,6 @@ const resolvers = {
   },
 };
 
-// const Subclient = new GraphQLClient({
-//   url: 'http://portara-web.herokuapp.com/graphql',
-//   wsUrl: 'wss://portara-web.herokuapp.com/graphql',
-// });
-
-// Subclient.runSubscription(`subscription { testSub }`).subscribe({
-//   next: (res) => {
-//     console.log('res', res)
-//     x = res.data.testSub;
-//     if (x === 'sub returned') {
-//       x = 5
-//     }
-//     console.log(x)
-//   },
-//   error: (error) => console.error('error',error),
-//   complete: () => console.log('done'),
-// });
 
 const server = new ApolloServer({
   typeDefs,

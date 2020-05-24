@@ -2,34 +2,9 @@ const { SchemaDirectiveVisitor }: any = require('graphql-tools');
 import { defaultFieldResolver, GraphQLField, GraphQLObjectType } from 'graphql';
 const asyncRedis = require('async-redis');
 const client = asyncRedis.createClient();
-import rateLimiter from './rateLimiter';
-import throttler from './throttler';
-import timeFrameMultiplier from './timeFrameMultiplier';
-import { GraphQLClient } from 'kikstart-graphql-client';
-import { subscr, initializerMutation } from './graphqlQueries'
-import { userID } from '../server'
-import { IUserSettings } from './interfaces';
-
-let userSettings: IUserSettings = {};
-
-// graphQLClient connects server to server communication
-const graphQLClient = new GraphQLClient({
-  // url: 'http://portara-web.herokuapp.com/graphql',
-  // wsUrl: 'wss://portara-web.herokuapp.com/graphql',
-  url: 'http://localhost:4000/graphql',
-  wsUrl: 'ws://localhost:4000/graphql',
-});
-
-if (userID) {
-  graphQLClient.runSubscription(subscr, { userID }).subscribe({
-    next: (res) => {
-      userSettings = res.data.portaraSettings
-      console.log(userSettings)
-    },
-    error: (error) => console.error('error', error),
-    complete: () => console.log('done'),
-  });
-}
+import rateLimiter from '../portara/rateLimiter';
+import throttler from '../portara/throttler';
+import timeFrameMultiplier from '../portara/timeFrameMultiplier';
 
 export default class portaraSchemaDirective extends SchemaDirectiveVisitor {
 
@@ -43,19 +18,7 @@ export default class portaraSchemaDirective extends SchemaDirectiveVisitor {
     let { limit, per, throttle } = this.args;
     const { resolve = defaultFieldResolver } = field;
 
-    if (userID) {
-      graphQLClient.runMutation(initializerMutation, { userID, name: field.name, limit, per, throttle })
-        .then(res => console.log(res))
-        .catch(err => console.log(err))
-    }
-
     field.resolve = async (...originalArgs) => {
-
-      if (userSettings.limit && userSettings.per && userSettings.throttle) {
-        limit = userSettings.limit;
-        per = userSettings.per;
-        throttle = userSettings.throttle;
-      }
 
       const [object, args, context, info] = originalArgs;
       const underLimit = await rateLimiter(limit, per, context.req.ip, info.fieldName);
@@ -80,22 +43,13 @@ export default class portaraSchemaDirective extends SchemaDirectiveVisitor {
 
   visitObject(type: GraphQLObjectType) {
     let { limit, per, throttle } = this.args;
-    if (userID) {
-      graphQLClient.runMutation(initializerMutation, { userID, name: type, limit, per, throttle })
-        .then(res => console.log(res))
-        .catch(err => console.log(err))
-    }
+
     const fields = type.getFields();
     Object.values(fields).forEach((field) => {
       const { resolve = defaultFieldResolver } = field;
       if (!field.astNode!.directives!.some((directive) => directive.name.value === 'portara')) {
         field.resolve = async (...originalArgs) => {
 
-          if (userSettings.limit && userSettings.per && userSettings.throttle) {
-            limit = userSettings.limit;
-            per = userSettings.per;
-            throttle = userSettings.throttle;
-          }
           const [object, args, context, info] = originalArgs;
           const underLimit = await rateLimiter(limit, per, context.req.ip, type.toString());
 

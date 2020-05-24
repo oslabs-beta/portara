@@ -1,13 +1,13 @@
 const { ApolloServer, gql } = require('apollo-server');
 export let userID = '5ec9aa3a9057a222f161be33'
-import { portaraSchemaDirective } from './portara/portaraSchemaDirective';
+import portaraSchemaDirective from './portara/portaraSchemaDirective';
 
 
 
 
 // typeDefs
 const typeDefs = gql`
-  directive @portara(limit: Int!, per: ID!, throttle: ID!) on FIELD_DEFINITION | OBJECT
+  directive @portara(limit: Int! = 10, per: ID! = 10, throttle: ID! = 0) on FIELD_DEFINITION | OBJECT
 
   type Query {
     test: String!

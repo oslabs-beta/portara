@@ -5,8 +5,39 @@ const client = asyncRedis.createClient();
 import rateLimiter from './rateLimiter';
 import throttler from './throttler';
 import timeFrameMultiplier from './timeFrameMultiplier';
-import { userSettings } from './subscriber'
+// import { userSettings } from './subscriber'
+import { GraphQLClient } from 'kikstart-graphql-client';
+import { subscr, initializerMutation } from './graphqlQueries'
+import { userID } from '../server'
+import { IUserSettings } from './interfaces';
 
+let userSettings: IUserSettings = {};
+
+// graphQLClient connects server to server communication
+const graphQLClient = new GraphQLClient({
+  // url: 'http://portara-web.herokuapp.com/graphql',
+  // wsUrl: 'wss://portara-web.herokuapp.com/graphql',
+  url: 'http://localhost:4000/graphql',
+  wsUrl: 'ws://localhost:4000/graphql',
+});
+
+if (userID) {
+  graphQLClient.runSubscription(subscr, { userID }).subscribe({
+    next: (res) => {
+      userSettings = res.data.portaraSettings
+      console.log(userSettings)
+    },
+    error: (error) => console.error('error', error),
+    complete: () => console.log('done'),
+  });
+
+
+  // graphQLClient.runMutation(initializerMutation, { userID, name: "bye", limit: "20", per: "15", throttle: "1" }).then(res => console.log(res))
+
+
+
+
+}
 
 export class portaraSchemaDirective extends SchemaDirectiveVisitor {
 
@@ -19,6 +50,13 @@ export class portaraSchemaDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(field: GraphQLField<any, any>, details) {
     let { limit, per, throttle } = this.args;
     const { resolve = defaultFieldResolver } = field;
+
+    if (userID) {
+      graphQLClient.runMutation(initializerMutation, { userID, name: field.name, limit, per, throttle })
+        .then(res => console.log(res))
+        .catch(err => console.log(err))
+    }
+
     field.resolve = async (...originalArgs) => {
 
       if (userSettings.limit && userSettings.per && userSettings.throttle) {

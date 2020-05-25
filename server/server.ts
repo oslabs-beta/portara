@@ -1,19 +1,27 @@
 const { ApolloServer, gql } = require('apollo-server');
 // For Server to Server GraphQL communication, userID will identify the relevant portara tool (user) to pass portara settings to each other.  If user is unidentified, portara rate limiter will default to settings without the ability to modify directive settings without redeploying the APP that portara tool lives on
-export let userID = '5ec9aa3a9057a222f161be33'
-import portaraSchemaDirective from './portara/portaraSchemaDirective';
+// export let userID = '5ec9aa3a9057a222f161be33'
+import portaraImport from './portara/portaraSchemaDirective';
+
+
+
+
+
+
+
+
 
 
 
 // typeDefs (for testing purposes only)
 const typeDefs = gql`
-  directive @portara(limit: Int! = 10, per: ID! = 10, throttle: ID! = 0) on FIELD_DEFINITION | OBJECT
+  directive @portara(limit: Int!, per: ID!, throttle: ID!) on FIELD_DEFINITION | OBJECT
 
   type Query {
     test: String!
   }
-  type Mutation @portara(limit: 4, per: 10, throttle: "500ms") {
-    hello: String! @portara
+  type Mutation @portara(limit: 20, per: 10, throttle: "500ms") {
+    hello: String! @portara(limit: 2, per: 7, throttle: 0)
     bye: String!
   }
 `;
@@ -42,7 +50,7 @@ const server = new ApolloServer({
   // Access req/res so that redis can store accurate information about each user. We use the IP address to keep track of which user has requested any given amount of times to a field/object
   context: ({ req, res }) => ({ req, res }),
   schemaDirectives: {
-    portara: portaraSchemaDirective,
+    portara: portaraImport('5ec9aa3a9057a222f161be33'),
   },
 });
 // Start the server

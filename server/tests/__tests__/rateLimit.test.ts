@@ -120,7 +120,6 @@ describe('test to see if rate limiter returns the correct value or the expected 
 
   it('field resolver should return original return value', async () => {
     const response1 = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
-    console.log(response1)
     expect(response1.data!.hello).toBe("Hello World");
   })
 
@@ -161,67 +160,67 @@ describe('test to see if rate limiter returns the correct value or the expected 
 })
 
 
-// describe('test to see if throttler returns the correct value at the right time when decorating @portara on field or an object', () => {
+describe('test to see if throttler returns the correct value at the right time when decorating @portara on field or an object', () => {
 
-//   const typeDefs = gql`
-//   directive @portara(limit: Int!, per: ID!, throttle: ID!) on FIELD_DEFINITION | OBJECT 
+  const typeDefs = gql`
+  directive @portara(limit: Int!, per: ID!, throttle: ID!) on FIELD_DEFINITION | OBJECT 
 
-//   type Query {
-//     test: String!
-//   }
-//   type Mutation @portara(limit: 4, per: 8, throttle: "1s") {
-//     add: Int! @portara(limit: 2, per: "8 seconds", throttle: "1s")
-//     minus: Int! 
-//   }
-// `;
-//   let addCounter = 0;
-//   let minusCounter = 5;
-//   const resolvers = {
-//     Query: {
-//       test: (parent, args, context, info) => {
-//         return 'Test'
-//       }
-//     },
-//     Mutation: {
-//       add: (parent, args, context, info) => {
-//         return addCounter += 1;
-//       },
-//       minus: (parent, args, context, info) => {
-//         return minusCounter -= 1;
-//       },
-//     },
-//   };
+  type Query {
+    test: String!
+  }
+  type Mutation @portara(limit: 4, per: 8, throttle: "1s") {
+    add: Int! @portara(limit: 2, per: "8 seconds", throttle: "1s")
+    minus: Int! 
+  }
+`;
+  let addCounter = 0;
+  let minusCounter = 5;
+  const resolvers = {
+    Query: {
+      test: (parent, args, context, info) => {
+        return 'Test'
+      }
+    },
+    Mutation: {
+      add: (parent, args, context, info) => {
+        return addCounter += 1;
+      },
+      minus: (parent, args, context, info) => {
+        return minusCounter -= 1;
+      },
+    },
+  };
 
-//   const schema = makeExecutableSchema({
-//     typeDefs,
-//     resolvers,
-//     resolverValidationOptions,
-//     schemaDirectives: {
-//       portara: portaraSchemaDirective,
-//     },
-//   })
+  const schema = makeExecutableSchema({
+    typeDefs,
+    resolvers,
+    resolverValidationOptions,
+    schemaDirectives: {
+      portara: portaraSchemaDirective,
+    },
+  })
 
-//   it('field resolver should throttle 1 time after hitting the limit, time taken should be greater than or equal to 1000', async () => {
-//     const t0 = performance.now()
-//     await graphql(schema, 'mutation { add }', null, { req: { ip: "127.0.0.22" } });
-//     await graphql(schema, 'mutation { add }', null, { req: { ip: "127.0.0.22" } });
-//     const response = await graphql(schema, 'mutation { add }', null, { req: { ip: "127.0.0.22" } });
-//     expect(response.data!.add).toBe(3)
-//     const t1 = performance.now()
-//     expect(t1 - t0).toBeGreaterThanOrEqual(1000)
+  it('field resolver should throttle 1 time after hitting the limit, time taken should be greater than or equal to 1000', async () => {
+    const t0 = performance.now()
+    await graphql(schema, 'mutation { add }', null, { req: { ip: "127.0.0.22" } });
+    await graphql(schema, 'mutation { add }', null, { req: { ip: "127.0.0.22" } });
+    const response = await graphql(schema, 'mutation { add }', null, { req: { ip: "127.0.0.22" } });
+    expect(response.data!.add).toBe(3)
+    const t1 = performance.now()
+    expect(t1 - t0).toBeGreaterThanOrEqual(1000)
 
-//   })
+  })
 
-//   it('object resolver should throttle 2 times after hitting the limit, time taken should be greater than or equal to 2000', async () => {
-//     const t0 = performance.now()
-//     for (let i = 0; i < 5; i++) {
-//       await graphql(schema, 'mutation { minus }', null, { req: { ip: "127.0.0.22" } });
-//     }
-//     const response = await graphql(schema, 'mutation { minus }', null, { req: { ip: "127.0.0.22" } });
-//     expect(response.data!.minus).toBe(-1)
-//     const t1 = performance.now()
-//     expect(t1 - t0).toBeGreaterThanOrEqual(2000)
-//   })
+  it('object resolver should throttle 2 times after hitting the limit, time taken should be greater than or equal to 2000', async () => {
+    const t0 = performance.now()
+    for (let i = 0; i < 5; i++) {
+      await graphql(schema, 'mutation { minus }', null, { req: { ip: "127.0.0.22" } });
+    }
+    const response = await graphql(schema, 'mutation { minus }', null, { req: { ip: "127.0.0.22" } });
+    expect(response.data!.minus).toBe(-1)
+    const t1 = performance.now()
+    expect(t1 - t0).toBeGreaterThanOrEqual(2000)
+  })
 
 
-// })
+})

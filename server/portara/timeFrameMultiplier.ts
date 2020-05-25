@@ -1,4 +1,4 @@
-export default function timeFrameMultiplier(timeFrame) {
+export default function timeFrameMultiplier(timeFrame: number | string): number | Error {
   if (timeFrame === 'milliseconds' || timeFrame === 'millisecond' || timeFrame === 'mil' || timeFrame === 'mils' || timeFrame === 'ms') {
     return 1
   } else if (timeFrame === 'seconds' || timeFrame === 'second' || timeFrame === 'sec' || timeFrame === 'secs' || timeFrame === 's') {

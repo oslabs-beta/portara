@@ -1,7 +1,7 @@
 # Portara
 
 ## Overview
-Portara is an open source rate limiter designed for easy use with Apollo Server, including other Apollo implementations (inlcuidng `Apollo-Server-Express`, `Apollo-Server-Hapi`, `Apollo-Server-Koa`, and `Apollo-Server-Lambda`). By using GraphQL Directives, developers have the ability to easily implement multiple rate limiters with as little as four lines of code.
+Portara is an open source rate limiter designed for easy use with Apollo Server, including other Apollo implementations (including `Apollo-Server-Express`, `Apollo-Server-Hapi`, `Apollo-Server-Koa`, and `Apollo-Server-Lambda`). By using GraphQL Directives, developers have the ability to easily implement multiple rate limiters with as little as four lines of code.
 
 ## Requirements
 - **Node.js** *version* 8.0.0+

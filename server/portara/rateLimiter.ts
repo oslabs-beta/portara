@@ -6,8 +6,8 @@ import timeFrameMultiplier from './timeFrameMultiplier'
 const rateLimiter = async (limit: number, per: string, ip: string, scope: string) => {
 
   // Per Functionality ---------------------------
-  const perNum = parseFloat(<any>per.match(/\d+/g)?.toString())
-  const perWord = per.match(/[a-zA-Z]+/g)?.toString().toLowerCase();
+  const perNum = parseFloat(<string>per.match(/\d+/g)?.toString())
+  const perWord = <string>per.match(/[a-zA-Z]+/g)?.toString().toLowerCase();
 
   // get final result of expirationTimeVariable
   let expirationTimeVariable = (<number>timeFrameMultiplier(perWord) * perNum);
@@ -22,8 +22,7 @@ const rateLimiter = async (limit: number, per: string, ip: string, scope: string
   } else {
     await client.incr(key);
     let value = await client.get(key);
-    value = Number(value);
-    return value > limit ? false : true;
+    return +value > limit ? false : true;
   }
 };
 

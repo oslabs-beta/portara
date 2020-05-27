@@ -7,7 +7,6 @@ import throttler from './throttler';
 import timeFrameMultiplier from './timeFrameMultiplier';
 import { GraphQLClient } from 'kikstart-graphql-client';
 import { subscr, initializerMutation } from './graphqlQueries'
-// import { userID } from '../server'
 import { IUserSettings } from './interfaces';
 
 // Create paths for both local testing and production. We only need to use these for triggering operations from nodejs.
@@ -18,10 +17,10 @@ import { IUserSettings } from './interfaces';
 export default function portara(userID?: string) {
   let userSettings: IUserSettings = {}; // update to be staging branch settings
   let graphQLClient = new GraphQLClient({
-    // url: 'http://portara-web.herokuapp.com/graphql',
-    // wsUrl: 'wss://portara-web.herokuapp.com/graphql',
-    url: 'http://localhost:4000/graphql',
-    wsUrl: 'ws://localhost:4000/graphql',
+    url: 'http://portara-web.herokuapp.com/graphql',
+    wsUrl: 'wss://portara-web.herokuapp.com/graphql',
+    // url: 'http://localhost:4000/graphql',
+    // wsUrl: 'ws://localhost:4000/graphql',
   });
 
 
@@ -39,7 +38,6 @@ export default function portara(userID?: string) {
 
   // Portara directive class
   return class portaraDirective extends SchemaDirectiveVisitor {
-
     // This error message is only for generating a response to a client when they exceed their limit (not for any other kind of errors)
     async generateErrorMessage(limit, per, name, ip) {
       const timeLeft = await client.ttl(`${ip}_${name}`);
@@ -48,9 +46,7 @@ export default function portara(userID?: string) {
     }
     //FIELD_DEFINITION directive
     visitFieldDefinition(field: GraphQLField<any, any>, details) {
-      // console.log(this)
       let { limit, per, throttle } = this.args;
-      console.log('2')
       // we store the original resolver for later usage
       const { resolve = defaultFieldResolver } = field;
       // similar to the subscription connection, we check if token has been entered. if it has, we run a mutation to update the database with our current directives. This is only because a user shouldn't lose their code settings if they've been using offline version of the tool and then decide to sign up online
@@ -63,13 +59,12 @@ export default function portara(userID?: string) {
       field.resolve = async (...originalArgs) => {
         const [object, args, context, info] = originalArgs;
         // if we've successfully pulled data from db, we update the userSettings and use those instead of original args
-        // console.log(userID, userSettings)
         if (userSettings[info.fieldName]) {
           limit = userSettings[info.fieldName].limit;
           per = userSettings[info.fieldName].per;
           throttle = userSettings[info.fieldName].throttle;
         }
-        // console.log('hit')
+
         // run rate limiter and check if it's ready to be triggered again
         const underLimit = await rateLimiter(limit, per, context.req.ip, info.fieldName);
         const perNum = parseFloat(throttle.match(/\d+/g)?.toString());

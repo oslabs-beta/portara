@@ -13,7 +13,7 @@ const typeDefs = gql`
   }
   type Mutation @portara(limit: 6, per: 33, throttle: "500ms") {
     hello: String! @portara(limit: 2, per: 22, throttle: 0)
-    bye: String! @portara(limit: 5, per: 22, throttle: 0)
+    bye: String!
   }
 `;
 

@@ -4,15 +4,6 @@ const { ApolloServer, gql } = require('apollo-server');
 import portaraImport from './portara/portaraSchemaDirective';
 
 
-
-
-
-
-
-
-
-
-
 // typeDefs (for testing purposes only)
 const typeDefs = gql`
   directive @portara(limit: Int!, per: ID!, throttle: ID!) on FIELD_DEFINITION | OBJECT
@@ -20,9 +11,9 @@ const typeDefs = gql`
   type Query {
     test: String!
   }
-  type Mutation @portara(limit: 20, per: 10, throttle: "500ms") {
-    hello: String! @portara(limit: 2, per: 7, throttle: 0)
-    bye: String!
+  type Mutation @portara(limit: 6, per: 33, throttle: "500ms") {
+    hello: String! @portara(limit: 2, per: 22, throttle: 0)
+    bye: String! 
   }
 `;
 
@@ -39,7 +30,7 @@ const resolvers = {
     },
     bye: (parent, args, context, info) => {
       return 'Goodbye world';
-    },
+    },//
   },
 };
 

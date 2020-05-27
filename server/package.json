@@ -1,14 +1,19 @@
 {
   "name": "portara",
-  "version": "1.0.4",
-  "description": "Apollo GraphQL rate limiter that uses directives",
-  "main": "rateLimiter.js",
-  "bin": "rateLimiter.js",
+  "version": "1.0.7",
+  "description": "Apollo GraphQL rate limiter, throttler, and ",
+  "main": "portaraSchemaDirective.js",
+  "bin": "portaraSchemaDirective.js",
   "files": [
     "package.json",
     "/examples",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "graphqlQueries.js",
+    "interfaces.js",
+    "rateLimiter.js",
+    "throttler.js",
+    "timeFrameMultiplier.js"
   ],
   "repository": {
     "type": "git",

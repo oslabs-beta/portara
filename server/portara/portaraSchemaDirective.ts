@@ -39,7 +39,6 @@ export default function portara(userID?: string) {
 
   // Portara directive class
   return class portaraDirective extends SchemaDirectiveVisitor {
-
     // This error message is only for generating a response to a client when they exceed their limit (not for any other kind of errors)
     async generateErrorMessage(limit, per, name, ip) {
       const timeLeft = await client.ttl(`${ip}_${name}`);
@@ -48,9 +47,7 @@ export default function portara(userID?: string) {
     }
     //FIELD_DEFINITION directive
     visitFieldDefinition(field: GraphQLField<any, any>, details) {
-      // console.log(this)
       let { limit, per, throttle } = this.args;
-      console.log('2')
       // we store the original resolver for later usage
       const { resolve = defaultFieldResolver } = field;
       // similar to the subscription connection, we check if token has been entered. if it has, we run a mutation to update the database with our current directives. This is only because a user shouldn't lose their code settings if they've been using offline version of the tool and then decide to sign up online

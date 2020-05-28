@@ -2,16 +2,20 @@ import { gql } from 'apollo-boost';
 
 const getAllQuery = gql`
   {
-    tests {
-      name
-    }
+    test
   }
 `;
 
-const addTestMutation = gql`
+const HELLO_MUTATION = gql`
   mutation {
     hello
   }
 `;
 
-export { getAllQuery, addTestMutation };
+const BYE_MUTATION = gql`
+  mutation {
+    bye
+  }
+`;
+
+export { HELLO_MUTATION, BYE_MUTATION };

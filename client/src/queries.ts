@@ -6,16 +6,16 @@ const getAllQuery = gql`
   }
 `;
 
-const addTestMutation = gql`
+const HELLO_MUTATION = gql`
   mutation {
     hello
   }
 `;
 
-const testSubscribe = gql`
-  subscription {
-    testSub
+const BYE_MUTATION = gql`
+  mutation {
+    bye
   }
 `;
 
-export { getAllQuery, addTestMutation, testSubscribe };
+export { HELLO_MUTATION, BYE_MUTATION };

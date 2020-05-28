@@ -1,6 +1,6 @@
 {
   "name": "portara",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Apollo GraphQL rate limiter, throttler, and ",
   "main": "portaraSchemaDirective.js",
   "bin": "portaraSchemaDirective.js",
@@ -25,9 +25,12 @@
   },
   "keywords": [
     "rate limiter",
+    "rate-limiter",
     "apollo",
     "graphql",
-    "async-redis"
+    "redis",
+    "throttler",
+    "throttle"
   ],
   "author": "portara-labs",
   "license": "MIT",

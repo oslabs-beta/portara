@@ -35,7 +35,7 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   context: ({ req, res }) = ({ req, res }),
-  schemaDirectives: { portara: portara('TOKEN GOES BETWEEN THESE QUOTES') },
+  schemaDirectives: { portara: portara("TOKEN GOES BETWEEN THESE QUOTES") },
 });
 ```
 The token is optional. You can get a token from Portara.io with a quick sign up throught Github Oauth. The token grants access to modify your rate limiter / throttler without redeploying your app.  If you do not plan on using this feature, leave the parameter empty.
@@ -86,7 +86,7 @@ type Query {
   
 ```graphql
 type Query @portara(limit: 10, per: "5 seconds", throttle: 0) {
-  hello: String! @portara( limit: 15, per: "5 seconds", throttle: 0 )
+  hello: String! @portara(limit: 15, per: "5 seconds", throttle: 0)
   goodbye: String!
 }
 ```

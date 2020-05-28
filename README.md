@@ -30,7 +30,7 @@ import Portara from 'portara';
 
 - [ ] **2**. Add to your Apollo Server *(make sure BOTH the context and schemaDirectives are added*:
 
-```graphql
+```javascript
 const server = new ApolloServer({
   typeDefs,
   resolvers,

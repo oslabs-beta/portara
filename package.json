@@ -17,18 +17,5 @@
   "bugs": {
     "url": "https://github.com/oslabs-beta/portara/issues"
   },
-  "homepage": "https://github.com/oslabs-beta/portara#readme",
-  "dependencies": {
-    "typescript": "^3.9.3"
-  },
-  "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^2.34.0",
-    "@typescript-eslint/parser": "^3.0.2",
-    "eslint": "^7.1.0",
-    "eslint-config-airbnb-typescript": "^7.2.1",
-    "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-react": "^7.20.0",
-    "eslint-plugin-react-hooks": "^2.5.1"
-  }
+  "homepage": "https://github.com/oslabs-beta/portara#readme"
 }

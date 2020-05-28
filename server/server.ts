@@ -41,7 +41,7 @@ const server = new ApolloServer({
   // Access req/res so that redis can store accurate information about each user. We use the IP address to keep track of which user has requested any given amount of times to a field/object
   context: ({ req, res }) => ({ req, res }),
   schemaDirectives: {
-    portara: portaraImport('5ec9aa3a9057a222f161be33'),
+    portara: portaraImport('6c945ce5-92e9-4dbe-912e-a8c37d171c6e'),
   },
 });
 // Start the server

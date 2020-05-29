@@ -1,3 +1,9 @@
+/* Algorithm to convert written time measures to milliseconds
+input: string (ex. "minutes")
+output: milliseconds 
+Example: takes in ("minutes"), returns 60,000 (milliseconds)
+*/
+
 export default function timeFrameMultiplier(timeFrame: number | string): number | Error {
   if (timeFrame === 'milliseconds' || timeFrame === 'millisecond' || timeFrame === 'mil' || timeFrame === 'mils' || timeFrame === 'ms') {
     return 1

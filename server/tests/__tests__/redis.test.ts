@@ -2,6 +2,11 @@ const asyncRedis = require('async-redis');
 const client = asyncRedis.createClient();
 
 // Rate Limiter Redis Mock Testing -------------------------------------
+/*
+Using Asynchronous Redis to properly test functionality and ensure the
+rate limiting algorithm works
+Great testing in case Redis disconnects
+*/
 
 
 describe('Redis connection and functionality are performing', () => {
@@ -18,15 +23,6 @@ describe('Redis connection and functionality are performing', () => {
 
   const IP = "123.4.5.67";
 
-  // it('Receieves the IP Address', async () => {
-  //   const response = await graphql(schema, 'mutation { hello }', null, { req: { ip: "127.0.0.13" } });
-  //   console.log(context)
-  // });
-
-  // it('Receives the scope (Apollo Field Directive or Apollo Object)', async () => {
-  //   // test
-  // });
-
   it('Checks to see if the key exists in Redis', async () => {
     const key = IP + "_" + "Exists";
     await client.psetex(key, 10, 1);
@@ -36,12 +32,6 @@ describe('Redis connection and functionality are performing', () => {
     const redisNotExistentKey = await client.exists("Nonexistent_Key");
     expect(redisNotExistentKey).toBe(0); // Redis replies "0" if false
   });
-  // it('Checks to see if the key exists', async () => {
-  //   const falsyResponse = client.get();
-  //   expect(falsyResponse).toBeFalsy();
-  //   client.set('truthyKey', 1);
-
-  // });
 
   it('If key does not exists, sets the key value pair in Redis', async () => {
     const key = IP + "_" + "Nonexistent"
@@ -67,7 +57,6 @@ describe('Redis connection and functionality are performing', () => {
     await delay(500);
     const expiredKey = await client.exists(key);
     await expect(expiredKey).toBe(0);
-
   });
 
   it('If the key does exist, increments the value', async () => {
@@ -77,6 +66,4 @@ describe('Redis connection and functionality are performing', () => {
     const incrValue = await client.get(key);
     await expect(incrValue).toBe("2");
   });
-
-
 });

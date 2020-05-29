@@ -6,6 +6,9 @@ import timeFrameMultiplier from './timeFrameMultiplier'
 const rateLimiter = async (limit: number, per: string, ip: string, scope: string) => {
 
   // Per Functionality ---------------------------
+  /* Separating string of the time limit into a number and a measure of time
+  ex. (per: "10 minutes") into (10, "minutes")
+  */
   const perNum = parseFloat(<string>per.match(/\d+/g)?.toString())
   const perWord = <string>per.match(/[a-zA-Z]+/g)?.toString().toLowerCase();
 
@@ -13,6 +16,14 @@ const rateLimiter = async (limit: number, per: string, ip: string, scope: string
   let expirationTimeVariable = (<number>timeFrameMultiplier(perWord) * perNum);
 
   // ---------------------------------------------
+
+  /* Integrating Redis
+  Setting key value pairs in redis that expire after a set amount of time
+  key: [user IP address]_[directive @portara is placed on]
+  value: incrementing the number of times the user is registered in Redis
+  expiration: time passed in from timeFrameMultiplier algorithm
+  */
+
   const key = ip + '_' + scope;
   let exists = await client.exists(key);
 

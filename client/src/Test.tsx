@@ -48,7 +48,7 @@ const Test: React.FC = (): JSX.Element => {
             />
           </div>
           <button className='hello' type='submit'>
-            Throttle
+            Mutation Object
           </button>
         </form>
 
@@ -70,7 +70,7 @@ const Test: React.FC = (): JSX.Element => {
               });
           }}
         >
-          Single
+          Bye Field
         </button>
       </ul>
       <ul id='resultsList'></ul>
